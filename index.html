@@ -975,7 +975,7 @@ footer{
  </a>
  <div class="drawer-info">
  <strong>Studio Focus</strong><br>
- Seg–Sex: 06h–22h &nbsp;|&nbsp; Sáb: 08h–14h<br>
+ Seg–Sex: 06h–22h &nbsp;|&nbsp; Sáb: 08h–12h<br>
  <a href="tel:+5514982180923" style="color:var(--pu2)">+55 (14) 98218-0923</a> · Garça, SP<br>
  <a href="https://wa.me/5514982180923?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Studio%20Focus!" style="color:var(--gr2);font-weight:600" target="_blank" rel="noopener">💬 WhatsApp agora</a> &nbsp;|&nbsp; 4.8 no Google Maps
  </div>
@@ -1546,7 +1546,7 @@ footer{
 <!-- FOOTER -->
 <footer>
  <div class="footer-brand">STUDIO <b>FOCUS</b></div>
- <div class="footer-info">R. Silvio Serveline, 37 · Garça · SP<br>Seg–Sex: 06h–22h | Sáb: 08h–14h<br><a href="tel:+5514982180923">+55 (14) 98218-0923</a>  <a href="https://wa.me/5514982180923?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Studio%20Focus!" target="_blank" rel="noopener" style="color:var(--gr2);font-weight:600">💬 WhatsApp</a></div>
+ <div class="footer-info">R. Silvio Serveline, 37 · Garça · SP<br>Seg–Sex: 06h–22h | Sáb: 08h–12h<br><a href="tel:+5514982180923">+55 (14) 98218-0923</a>  <a href="https://wa.me/5514982180923?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Studio%20Focus!" target="_blank" rel="noopener" style="color:var(--gr2);font-weight:600">💬 WhatsApp</a></div>
  <div class="footer-rating">
  <div class="footer-rating-num">4<span style="color:var(--pu2)">.8</span></div>
  <div><div class="footer-stars"></div><div class="footer-rating-sub">Google Maps</div></div>
@@ -2243,7 +2243,7 @@ async function generatePDF({peso,altura,imc,range:r,pesoIdeal:pi,tmb,sexo,idade}
   rect(M,p2,W-M*2,17,[235,242,255],3)
   doc.setFillColor(0,102,255);doc.rect(M,p2,2,17,'F')
   tx(8.5,true,[0,102,255]);doc.text('Studio Focus — Academia em Garca, SP',M+6,p2+6)
-  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-14h',M+6,p2+13)
+  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-12h',M+6,p2+13)
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_IMC_'+imc.toFixed(1)+'.pdf')
@@ -2393,7 +2393,7 @@ async function gerarPDFCalorias(tmb,peso,alt,idade,sexo){
   rect(M,p2,W-M*2,17,[235,242,255],3)
   doc.setFillColor(0,102,255);doc.rect(M,p2,2,17,'F')
   tx(8.5,true,[0,102,255]);doc.text('Studio Focus - Academia em Garca, SP',M+6,p2+6)
-  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-14h',M+6,p2+13)
+  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-12h',M+6,p2+13)
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Calorias.pdf')
@@ -2471,7 +2471,7 @@ async function gerarPDFAgua(){
   rect(M,p2a,W-M*2,17,[235,242,255],3)
   doc.setFillColor(0,102,255);doc.rect(M,p2a,2,17,'F')
   tx(8.5,true,[0,102,255]);doc.text('Studio Focus - Academia em Garca, SP',M+6,p2a+6)
-  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-14h',M+6,p2a+13)
+  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-12h',M+6,p2a+13)
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Agua_'+peso+'kg.pdf')
@@ -2546,7 +2546,7 @@ async function gerarPDFMacros(){
   rect(M,p2m,W-M*2,17,[235,242,255],3)
   doc.setFillColor(0,102,255);doc.rect(M,p2m,2,17,'F')
   tx(8.5,true,[0,102,255]);doc.text('Studio Focus - Academia em Garca, SP',M+6,p2m+6)
-  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-14h',M+6,p2m+13)
+  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-12h',M+6,p2m+13)
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Macros_'+peso+'kg.pdf')
@@ -2627,7 +2627,7 @@ async function gerarPDFSim(){
   rect(M,p2s,W-M*2,17,[235,242,255],3)
   doc.setFillColor(0,102,255);doc.rect(M,p2s,2,17,'F')
   tx(8.5,true,[0,102,255]);doc.text('Studio Focus - Academia em Garca, SP',M+6,p2s+6)
-  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-14h',M+6,p2s+13)
+  tx(8,false,[70,68,85]);doc.text('(14) 98218-0923  |  Seg-Sex: 06h-22h  |  Sab: 08h-12h',M+6,p2s+13)
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Meta_'+peso+'kg.pdf')
