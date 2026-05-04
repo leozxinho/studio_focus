@@ -1,0 +1,21 @@
+{
+  "name": "Studio Focus",
+  "short_name": "Studio Focus",
+  "description": "Ferramentas completas de academia e calculadoras fitness do Studio Focus.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020d1a",
+  "theme_color": "#0066FF",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwNjZGRiI+PHBhdGggZD0iTTIxIDdjLTEuMSAwLTIgLjktMiAydjJINVY5YzAtMS4xLS45LTItMi0yUzEgNy45IDEgOXY2YzAgMS4xLjkgMiAyIDJzMi0uOSAyLTJ2LTJoMTR2MmMw 1.1LjkgMiAyIDJzMi0uOSAyLTJWOWMwLTEuMS0uOS0yLTItMnpNMyAxNGMtLjU1IDAtMS0uNDUtMS0xVjljMC0uNTUuNDUtMSAxLTFzMSAuNDUgMSAxdjRjMCAuNTUtLjQ1IDEtMSAxem0xOCAwYy0uNTUgMC0xLS40NS0xLTFWOWMwLS41NS40NS0x 1LTFzMSAuNDUgMSAxdjRjMCAuNTUtLjQ1IDEtMSAxem0tMTQtNXYyaDEwVjlIOXoiLz48L3N2Zz4=",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwNjZGRiI+PHBhdGggZD0iTTIxIDdjLTEuMSAwLTIgLjktMiAydjJINVY5YzAtMS4xLS45LTItMi0yUzEgNy45IDEgOXY2YzAgMS4xLjkgMiAyIDJzMi0uOSAyLTJ2LTJoMTR2MmMw 1.1LjkgMiAyIDJzMi0uOSAyLTJWOWMwLTEuMS0uOS0yLTItMnpNMyAxNGMtLjU1IDAtMS0uNDUtMS0xVjljMC0uNTUuNDUtMSAxLTFzMSAuNDUgMSAxdjRjMCAuNTUtLjQ1IDEtMSAxem0xOCAwYy0uNTUgMC0xLS40NS0xLTFWOWMwLS41NS40NS0x 1LTFzMSAuNDUgMSAxdjRjMCAuNTUtLjQ1IDEtMSAxem0tMTQtNXYyaDEwVjlIOXoiLz48L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

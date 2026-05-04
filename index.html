@@ -7,7 +7,9 @@
 <meta name="color-scheme" content="dark light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Studio Focus — Academia em Garça, SP</title>
+<link rel="manifest" href="manifest.json">
+<title>Studio Focus - Academia em Garça, SP</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230066FF'><path d='M21 7c-1.1 0-2 .9-2 2v2H5V9c0-1.1-.9-2-2-2S1 7.9 1 9v6c0 1.1.9 2 2 2s2-.9 2-2v-2h14v2c0 1.1.9 2 2 2s2-.9 2-2V9c0-1.1-.9-2-2-2zM4 15c0 .55-.45 1-1 1s-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v6zm18 0c0 .55-.45 1-1 1s-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v6z'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -114,7 +116,6 @@ nav{
  padding:14px;border-radius:var(--rl);background:var(--s2);border:1px solid var(--bd);
  text-align:left;width:100%;font-family:var(--fb);color:var(--tx);
  transition:background .2s,border-color .2s;
- -webkit-appearance:none;
 }
 .drawer-btn:active{background:var(--pu3);border-color:rgba(61,154,255,.35)}
 .drawer-btn-icon{pointer-events:none;
@@ -374,8 +375,8 @@ display:flex;flex-direction:column;gap:2px}
 /* PROFESSOR */
 .prof-section{position:relative;overflow:hidden;background:var(--s1)}
 .prof-inner{display:flex;flex-direction:column}
-.prof-photo-col{position:relative;overflow:hidden;max-height:380px}
-.prof-photo{width:100%;height:100%;min-height:300px;object-fit:cover;object-position:center 15%;display:block}
+.prof-photo-col{position:relative;overflow:hidden;display:flex;justify-content:center}
+.prof-photo{width:100%;aspect-ratio:4/5;max-height:75vh;object-fit:cover;object-position:center 10%;display:block}
 .prof-photo-overlay{
  position:absolute;inset:0;
  background:linear-gradient(to top,var(--s1) 0%,transparent 50%);
@@ -912,7 +913,7 @@ footer{
 <aside class="drawer" id="drawer" role="dialog" aria-label="Menu de navegação">
  <div class="drawer-header">
  <div class="drawer-title">STUDIO <span>FOCUS</span></div>
- <button class="drawer-close" id="drawer-close">&#x2715;</button>
+ <button class="drawer-close" id="drawer-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="drawer-body">
  <div class="drawer-section-label">Ferramentas Grátis</div>
@@ -992,7 +993,7 @@ footer{
  <div class="imc-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">📊 CALCULAR IMC</div>
- <button class="imc-modal-close" id="modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="imc-field">
  <label class="imc-lbl">Sexo <span class="imc-pill">PARA IMC</span></label>
@@ -1030,7 +1031,7 @@ footer{
  <div class="imc-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">🔥 CALORIAS</div>
- <button class="imc-modal-close" id="cal-modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="cal-modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="imc-field">
  <label class="imc-lbl">Sexo</label>
@@ -1066,7 +1067,7 @@ footer{
  <div class="imc-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">💧 HIDRATAÇÃO</div>
- <button class="imc-modal-close" id="agua-modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="agua-modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="imc-field">
  <label class="imc-lbl" for="agua-peso">Peso <span class="imc-pill">KG</span></label>
@@ -1111,7 +1112,7 @@ footer{
  <div class="imc-modal macro-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">🥗 MACROS</div>
- <button class="imc-modal-close" id="macro-modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="macro-modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="imc-field">
  <label class="imc-lbl">Sexo</label>
@@ -1173,7 +1174,7 @@ footer{
  <div class="imc-modal sim-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">🎯 SIMULAR META</div>
- <button class="imc-modal-close" id="sim-modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="sim-modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="imc-field">
  <label class="imc-lbl">Sexo</label>
@@ -1524,7 +1525,7 @@ footer{
  <div class="imc-modal">
  <div class="imc-modal-header">
  <div class="imc-modal-title">🏋️ 1RM CALCULADORA</div>
- <button class="imc-modal-close" id="rm-modal-close">&#x2715;</button>
+ <button class="imc-modal-close" id="rm-modal-close" aria-label="Fechar">&#x2715;</button>
  </div>
  <div class="grid-2">
  <div class="imc-field">
@@ -1594,9 +1595,9 @@ footer{
 <button class="tut-fab" onclick="abrirTutorial()">Ver tutorial</button>
 
 <!-- JSPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+
 <script>
-if(typeof window.jspdf==='undefined'){var s=document.createElement('script');s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';s.crossOrigin='anonymous';document.head.appendChild(s)}
+
 </script>
 
 <script>
@@ -1650,6 +1651,23 @@ function togglePlanos(){
  }
 }
 
+
+let _jspdfPromise = null;
+function loadJSPDF() {
+  if (window.jspdf) return Promise.resolve(window.jspdf);
+  if (_jspdfPromise) return _jspdfPromise;
+  _jspdfPromise = new Promise((resolve, reject) => {
+    showToast('Baixando gerador de PDF...', 'info');
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = () => { resolve(window.jspdf); };
+    s.onerror = () => { showToast('Erro ao carregar gerador de PDF.', 'error'); reject(); };
+    document.head.appendChild(s);
+  });
+  return _jspdfPromise;
+}
+
 /* MODAIS — open/close */
 function openModal(id){
  const el=document.getElementById(id)
@@ -1675,6 +1693,16 @@ document.getElementById('macro-modal-close')?.addEventListener('click',()=>close
 document.getElementById('sim-modal-close')?.addEventListener('click',()=>closeModal('sim-modal-overlay'))
 document.getElementById('drawer-rm-btn')?.addEventListener('click',()=>{closeDrawer();openModal('rm-modal-overlay')})
 document.getElementById('rm-modal-close')?.addEventListener('click',()=>closeModal('rm-modal-overlay'))
+
+
+// Input Validation
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.type === 'number') {
+    if (e.target.value && parseFloat(e.target.value) < 0) {
+      e.target.value = Math.abs(parseFloat(e.target.value));
+    }
+  }
+});
 
 // Click outside
 ;(function(){
@@ -2133,9 +2161,16 @@ function pdfFooter(doc,W,M,H,tx,line){
 }
 
 
-function generatePDF({peso,altura,imc,range:r,pesoIdeal:pi,tmb,sexo,idade}){
- if(!window.jspdf){alert('Aguarde o PDF carregar.');return}
+async function generatePDF({peso,altura,imc,range:r,pesoIdeal:pi,tmb,sexo,idade}){
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
   let y=pdfHeader(doc,W,M,tx,line,'Relatorio de IMC','Indice de Massa Corporal - OMS')
@@ -2216,13 +2251,22 @@ function generatePDF({peso,altura,imc,range:r,pesoIdeal:pi,tmb,sexo,idade}){
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_IMC_'+imc.toFixed(1)+'.pdf')
- }catch(e){alert('Erro ao gerar PDF: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro ao gerar PDF', 'error')}
 }
 
 
-function gerarPDF1RM(rm, peso, reps){
- if(!window.jspdf){alert('Aguarde o PDF carregar.');return}
+async function gerarPDF1RM(rm, peso, reps){
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
   let y=pdfHeader(doc,W,M,tx,line,'Relatório de 1RM','Carga máxima e tabela de treino — Fórmula de Epley')
@@ -2281,12 +2325,21 @@ function gerarPDF1RM(rm, peso, reps){
   
   pdfFooter(doc,W,H,M,tx,line)
   doc.save('StudioFocus_1RM.pdf')
- }catch(e){alert('Erro ao gerar PDF: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro ao gerar PDF', 'error')}
 }
 
-function gerarPDFCalorias(tmb,peso,alt,idade,sexo){
- if(!window.jspdf){alert('Aguarde o PDF carregar.');return}
+async function gerarPDFCalorias(tmb,peso,alt,idade,sexo){
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
   let y=pdfHeader(doc,W,M,tx,line,'Relatorio de Calorias','Necessidade calorica diaria - Mifflin-St Jeor')
@@ -2348,13 +2401,22 @@ function gerarPDFCalorias(tmb,peso,alt,idade,sexo){
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Calorias.pdf')
- }catch(e){alert('Erro: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro interno', 'error')}
 }
 
-function gerarPDFAgua(){
- if(!_lastAguaData){alert('Calcule primeiro.');return}
- if(!window.jspdf){alert('Aguarde.');return}
+async function gerarPDFAgua(){
+ if(!_lastAguaData){showToast('Calcule os resultados primeiro!', 'error');return}
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{peso,ml,litros,copos,manha,tarde,noite}=_lastAguaData
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
@@ -2417,13 +2479,22 @@ function gerarPDFAgua(){
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Agua_'+peso+'kg.pdf')
- }catch(e){alert('Erro: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro interno', 'error')}
 }
 
-function gerarPDFMacros(){
- if(!_lastMacroData){alert('Calcule primeiro.');return}
- if(!window.jspdf){alert('Aguarde.');return}
+async function gerarPDFMacros(){
+ if(!_lastMacroData){showToast('Calcule os resultados primeiro!', 'error');return}
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{totalKcal,protG,carbG,gordFinalG,protPct,carbPct,gordPct,objKey:obj,objLabel,dietaLabel,tmb,tdee,peso}=_lastMacroData
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
@@ -2483,13 +2554,22 @@ function gerarPDFMacros(){
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Macros_'+peso+'kg.pdf')
- }catch(e){alert('Erro: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro interno', 'error')}
 }
 
-function gerarPDFSim(){
- if(!_lastSimData){alert('Simule primeiro.');return}
- if(!window.jspdf){alert('Aguarde.');return}
+async function gerarPDFSim(){
+ if(!_lastSimData){showToast('Simule os resultados primeiro!', 'error');return}
+ if(!window.jspdf) {
+    try { await loadJSPDF(); } catch(e) { return; }
+  }
  try{
+  let _btn = null, _origHTML = '';
+  try { if(event && event.currentTarget && event.currentTarget.tagName === 'BUTTON') _btn = event.currentTarget; } catch(e){}
+  if(!_btn && document.activeElement && document.activeElement.tagName === 'BUTTON') _btn = document.activeElement;
+  if(_btn) { _origHTML = _btn.innerHTML; _btn.innerHTML = '⌛ Gerando...'; _btn.style.pointerEvents = 'none'; _btn.style.opacity = '0.7'; }
+
   const{metaKg,obj,scenarios,tmb,tdee,protG,carbG,gordG,kcalBase,aguaL,peso}=_lastSimData
   const{doc,W,H,M,bg,rect,line,tx,wrap}=pdfDoc()
   bg([255,255,255])
@@ -2555,7 +2635,9 @@ function gerarPDFSim(){
 
   pdfFooter(doc,W,M,H,tx,line)
   doc.save('StudioFocus_Meta_'+peso+'kg.pdf')
- }catch(e){alert('Erro: '+e.message)}
+ 
+  if(_btn) { _btn.innerHTML = _origHTML; _btn.style.pointerEvents = ''; _btn.style.opacity = '1'; }
+}catch(e){showToast('Erro interno', 'error')}
 }
 
 /* TUTORIAL */
@@ -2615,5 +2697,35 @@ window.addEventListener('load',()=>{if(!document.cookie.split(';').some(c=>c.tri
 document.addEventListener('keydown',e=>{if(!_tutActive)return;if(e.key==='ArrowRight'||e.key==='Enter')tutStep(1);if(e.key==='ArrowLeft')tutStep(-1)})
 </script>
 
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+function showToast(msg, type='info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  
+  let icon = 'ℹ️';
+  if(type === 'error') icon = '⚠️';
+  if(type === 'success') icon = '✅';
+  
+  toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 3000);
+}
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW falhou: ', err));
+  });
+}
+</script>
 </body>
 </html>
