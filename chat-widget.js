@@ -3,7 +3,7 @@
 (function () {
     // --- Constants & Config ---
     const STORAGE_KEY = "focus-ia-conversas";
-    const API_ENDPOINT = "/api/chat";
+    const API_ENDPOINT = "/api/chat.php";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP. 
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física. 
 Seja direto e motivador como um personal trainer experiente. 
@@ -332,7 +332,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
     // --- API Logic ---
     async function callGemini(messages) {
-        const response = await fetch('/api/chat', {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
