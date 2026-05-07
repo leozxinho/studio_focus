@@ -376,7 +376,7 @@
     border: 1px solid #ddd;
     padding: 10px 14px;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 16px; /* Evita zoom automático no iOS */
     outline: none;
     transition: var(--focus-transition);
 }
@@ -443,8 +443,33 @@
 
 /* Responsive */
 @media (max-width: 480px) {
+    #focus-ia-container {
+        right: 20px; /* Alinha com o padrão mobile */
+        bottom: 20px;
+        width: 100%;
+        pointer-events: none;
+        align-items: flex-end;
+    }
+
+    #focus-ia-launcher, #focus-ia-tooltip {
+        pointer-events: auto;
+    }
+
     #focus-ia-window {
         width: calc(100vw - 40px);
-        height: 80vh;
+        height: calc(100svh - 100px); /* Usa svh para melhor suporte mobile */
+        right: 0;
+        margin-right: 0;
+        bottom: 70px;
+        position: fixed;
+        pointer-events: auto;
+    }
+
+    .focus-ia-header {
+        padding: 12px 16px;
+    }
+
+    #focus-ia-messages {
+        max-height: none;
     }
 }
