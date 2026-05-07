@@ -3,7 +3,10 @@
 (function () {
     // --- Constants & Config ---
     const STORAGE_KEY = "focus-ia-conversas";
-    const API_ENDPOINT = "/api/chat.php";
+    const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const API_ENDPOINT = isLocal 
+        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM` 
+        : "/api/chat.php";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP. 
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física. 
 Seja direto e motivador como um personal trainer experiente. 
@@ -332,17 +335,28 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
     // --- API Logic ---
     async function callGemini(messages) {
+        let body;
+        if (isLocal) {
+            body = {
+                system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                contents: messages,
+                generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
+            };
+        } else {
+            body = {
+                system_prompt: SYSTEM_PROMPT,
+                messages: messages
+            };
+        }
+
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                system_prompt: SYSTEM_PROMPT,
-                messages: messages
-            })
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();
-
+        
         if (data.error) {
             const err = new Error(data.error.message || "Erro na API");
             err.code = data.error.code;
@@ -355,7 +369,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
             const textPart = parts.find(p => p.text);
             if (textPart) return textPart.text;
         }
-
+        
         throw new Error("Resposta inválida da IA");
     }
 
