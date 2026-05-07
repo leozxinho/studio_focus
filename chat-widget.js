@@ -6,7 +6,7 @@
     const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
     const API_ENDPOINT = isLocal 
         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM` 
-        : "/focus-bridge.php";
+        : "https://studio-focus-git-main-leonardo-de-oliveiras-projects.vercel.app/api/chat";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP. 
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física. 
 Seja direto e motivador como um personal trainer experiente. 
@@ -348,15 +348,14 @@ Pronto para evoluir seu treino, alimentação e resultados.
                 body: JSON.stringify(body)
             });
         } else {
-            // Em produção (Hostinger), enviamos como formulário para evitar o erro 405
-            const formData = new URLSearchParams();
-            formData.append('system_prompt', SYSTEM_PROMPT);
-            formData.append('messages', JSON.stringify(messages));
-
+            // Em produção (Vercel Bridge), usamos JSON que é o padrão da Vercel
             response = await fetch(API_ENDPOINT, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    system_prompt: SYSTEM_PROMPT,
+                    messages: messages
+                })
             });
         }
 
