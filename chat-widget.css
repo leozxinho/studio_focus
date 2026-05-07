@@ -457,18 +457,18 @@
 
     #focus-ia-window {
         width: 100%;
-        height: 500px; /* Altura fixa menor */
-        max-height: 70vh; /* Não ultrapassa 70% da tela */
+        height: 500px;
+        max-height: 400px; /* Mais compacto no mobile quando fechado */
         left: 0;
         bottom: 60px;
         position: fixed;
         pointer-events: auto;
         border-radius: 12px;
-        transition: max-height 0.3s ease;
+        transition: bottom 0.2s ease-out;
     }
 
-    #focus-ia-window.keyboard-open {
-        max-height: 40vh; /* Reduz altura para caber acima do teclado */
+    #focus-ia-window.active {
+        max-height: 70dvh; /* Usa dvh para melhor suporte mobile */
     }
 
     .focus-ia-header {

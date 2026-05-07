@@ -203,21 +203,6 @@ Pronto para evoluir seu treino, alimentação e resultados.
         };
 
         sendBtn.onclick = sendMessage;
-        
-        // Keyboard Handling for Mobile
-        input.addEventListener('focus', () => {
-            if (window.innerWidth <= 480) {
-                win.classList.add('keyboard-open');
-                setTimeout(scrollToBottom, 300);
-            }
-        });
-
-        input.addEventListener('blur', () => {
-            if (window.innerWidth <= 480) {
-                win.classList.remove('keyboard-open');
-            }
-        });
-
         input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
 
         chips.forEach(chip => {
@@ -534,10 +519,39 @@ Pronto para evoluir seu treino, alimentação e resultados.
         document.addEventListener('DOMContentLoaded', () => {
             init();
             startTooltipCycle();
+            setupViewportHandling();
         });
     } else {
         init();
         startTooltipCycle();
+        setupViewportHandling();
+    }
+
+    function setupViewportHandling() {
+        if (!window.visualViewport || window.innerWidth > 480) return;
+
+        const container = document.getElementById('focus-ia-container');
+        if (!container) return;
+
+        const handleViewportChange = () => {
+            const viewport = window.visualViewport;
+            const windowHeight = window.innerHeight;
+            const keyboardHeight = windowHeight - viewport.height;
+
+            if (keyboardHeight > 50) { // Threshold for keyboard detection
+                container.style.bottom = `${keyboardHeight + 10}px`;
+                container.style.left = '10px';
+                container.style.width = 'calc(100vw - 20px)';
+                scrollToBottom();
+            } else {
+                container.style.bottom = '15px';
+                container.style.left = '15px';
+                container.style.width = '320px';
+            }
+        };
+
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+        window.visualViewport.addEventListener('scroll', handleViewportChange);
     }
 
     function startTooltipCycle() {
