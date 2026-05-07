@@ -112,3 +112,13 @@ if rm_target in content:
 
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(content)
+
+
+
+
+
+
+
+
+
+
