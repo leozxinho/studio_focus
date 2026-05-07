@@ -191,6 +191,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
         const input = document.getElementById('focus-ia-input');
         const chips = document.querySelectorAll('.focus-chip');
         const pdfBtn = document.getElementById('focus-ia-pdf-btn');
+        const win = document.getElementById('focus-ia-window');
 
         launcher.onclick = toggleWindow;
         closeBtn.onclick = toggleWindow;
@@ -202,6 +203,21 @@ Pronto para evoluir seu treino, alimentação e resultados.
         };
 
         sendBtn.onclick = sendMessage;
+        
+        // Keyboard Handling for Mobile
+        input.addEventListener('focus', () => {
+            if (window.innerWidth <= 480) {
+                win.classList.add('keyboard-open');
+                setTimeout(scrollToBottom, 300);
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            if (window.innerWidth <= 480) {
+                win.classList.remove('keyboard-open');
+            }
+        });
+
         input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
 
         chips.forEach(chip => {

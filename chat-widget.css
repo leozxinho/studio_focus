@@ -464,6 +464,11 @@
         position: fixed;
         pointer-events: auto;
         border-radius: 12px;
+        transition: max-height 0.3s ease;
+    }
+
+    #focus-ia-window.keyboard-open {
+        max-height: 40vh; /* Reduz altura para caber acima do teclado */
     }
 
     .focus-ia-header {
