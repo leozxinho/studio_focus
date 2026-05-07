@@ -1,0 +1,21 @@
+    if profile == AuthProfile.PLATFORM:
+        try:
+            user = get_user_by_token(token)
+        except HTTPException:
+            raise
+        except (ExpiredToken, InvalidTokenSignature, InvalidTokenType):
+            raise HTTPException(status_code=401, detail="Invalid or Expired platform token")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid or Expired platform token")
+
+        if not user:
+            raise HTTPException(status_code=403, detail="Invalid or Expired platform token")
+
+        return user
+
+    if profile == AuthProfile.PARTNER:
+        return verify_partner_token(credentials)
+
+    raise HTTPException(status_code=403, detail="Unknown auth profile")
+
+return Depends(_verify_token)

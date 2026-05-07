@@ -1,0 +1,450 @@
+/* Focus IA Chat Widget - Styles */
+
+:root {
+    --focus-primary: #0066FF; /* Studio Focus Blue */
+    --focus-accent: #4ade80;
+    --focus-bg-ia: #f1f1f1;
+    --focus-text-ia: #1a1a1a;
+    --focus-text-user: #ffffff;
+    --focus-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --focus-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#focus-ia-container {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    right: 155px; /* Lado esquerdo do botão "Ver tutorial" */
+    z-index: 10000;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Launcher Button */
+#focus-ia-launcher {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--focus-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--focus-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--focus-transition);
+    position: relative;
+}
+
+#focus-ia-launcher:hover {
+    transform: scale(1.1);
+}
+
+#focus-ia-launcher svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Tooltip Arrow Badge */
+#focus-ia-tooltip {
+    position: absolute;
+    bottom: 64px;
+    right: -10px;
+    background: var(--focus-primary);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10001;
+}
+
+#focus-ia-tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#focus-ia-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 22px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--focus-primary);
+}
+
+.focus-ia-pulse {
+    animation: tooltip-bounce 2s infinite ease-in-out;
+}
+
+@keyframes tooltip-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Main Chat Window */
+#focus-ia-window {
+    width: 380px;
+    height: 600px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--focus-shadow);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: var(--focus-transition);
+    transform-origin: bottom right;
+    /* Adjusting to open above the shifted launcher */
+    position: relative;
+    right: -135px; /* Offset back to the right so it aligns with the screen edge more or less */
+}
+
+#focus-ia-window.active {
+    display: flex;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header */
+.focus-ia-header {
+    background: var(--focus-primary);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.focus-ia-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.focus-ia-status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--focus-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+}
+
+.focus-ia-header-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.focus-ia-header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.focus-ia-header-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: var(--focus-transition);
+}
+
+.focus-ia-header-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Chat Body */
+#focus-ia-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #fafafa;
+    max-height: 480px;
+}
+
+/* Custom Scrollbar */
+#focus-ia-messages::-webkit-scrollbar {
+    width: 6px;
+}
+#focus-ia-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+#focus-ia-messages::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Message Bubbles */
+.focus-msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.focus-msg.user {
+    align-self: flex-end;
+    background: var(--focus-primary);
+    color: var(--focus-text-user);
+    border-bottom-right-radius: 4px;
+}
+
+.focus-msg.ia {
+    align-self: flex-start;
+    background: var(--focus-bg-ia);
+    color: var(--focus-text-ia);
+    border-bottom-left-radius: 4px;
+}
+
+/* Typing Indicator */
+.focus-typing {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--focus-bg-ia);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+    margin-top: 5px;
+}
+
+.focus-dot {
+    width: 6px;
+    height: 6px;
+    background: #999;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.focus-dot:nth-child(1) { animation-delay: -0.32s; }
+.focus-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
+
+/* Suggestion Chips */
+#focus-ia-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.focus-chip {
+    background: white;
+    border: 1px solid var(--focus-primary);
+    color: var(--focus-primary);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--focus-transition);
+}
+
+.focus-chip:hover {
+    background: var(--focus-primary);
+    color: white;
+}
+
+/* History Panel */
+#focus-ia-history-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 100;
+    transform: translateX(100%);
+    transition: var(--focus-transition);
+    display: flex;
+    flex-direction: column;
+}
+
+#focus-ia-history-panel.active {
+    transform: translateX(0);
+}
+
+.history-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.history-item {
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--focus-transition);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+}
+
+.history-item:hover {
+    background: #f8f8f8;
+}
+
+.history-item.active {
+    background: rgba(74, 222, 128, 0.05);
+    border-color: var(--focus-accent);
+}
+
+.history-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.history-item-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.history-delete-btn {
+    padding: 8px;
+    color: #ff4d4d;
+    opacity: 0.5;
+    transition: var(--focus-transition);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.history-item:hover .history-delete-btn {
+    opacity: 1;
+}
+
+/* Footer Area */
+.focus-ia-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.focus-ia-input-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#focus-ia-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: var(--focus-transition);
+}
+
+#focus-ia-input:focus {
+    border-color: var(--focus-primary);
+}
+
+#focus-ia-send {
+    background: var(--focus-accent);
+    color: var(--focus-primary);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--focus-transition);
+}
+
+#focus-ia-send:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+#focus-ia-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.focus-ia-disclaimer {
+    font-size: 10px;
+    color: #aaa;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.focus-ia-pdf-btn {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px dashed #ddd;
+    color: #666;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: var(--focus-transition);
+}
+
+.focus-ia-pdf-btn:hover:not(:disabled) {
+    background: #f9f9f9;
+    border-color: var(--focus-primary);
+    color: var(--focus-primary);
+}
+
+.focus-ia-pdf-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    #focus-ia-window {
+        width: calc(100vw - 40px);
+        height: 80vh;
+    }
+}
