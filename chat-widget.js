@@ -542,17 +542,11 @@ Pronto para evoluir seu treino, alimentação e resultados.
         if (!win) return;
 
         const handleViewportChange = () => {
-            const viewport = window.visualViewport;
-            const windowHeight = window.innerHeight;
-            const keyboardHeight = Math.max(0, windowHeight - viewport.height);
-
-            if (keyboardHeight > 50) { // Keyboard is open
-                win.style.bottom = `${keyboardHeight + 10}px`;
-                setTimeout(scrollToBottom, 50);
-            } else {
-                // Keyboard is closed
-                win.style.bottom = '70px';
-            }
+            if (!win.classList.contains('active')) return;
+            const vp = window.visualViewport;
+            win.style.top = vp.offsetTop + 'px';
+            win.style.height = vp.height + 'px';
+            setTimeout(scrollToBottom, 50);
         };
 
         window.visualViewport.addEventListener('resize', handleViewportChange);
