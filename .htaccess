@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Garante que requisições POST para o bridge sejam processadas corretamente
+    RewriteCond %{REQUEST_METHOD} POST
+    RewriteRule ^focus-bridge\.php$ - [L]
+</IfModule>
+
+# Permissões de métodos
+<Limit GET POST OPTIONS>
+    Allow from all
+</Limit>
