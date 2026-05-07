@@ -13,12 +13,12 @@
 #focus-ia-container {
     position: fixed;
     bottom: max(20px, env(safe-area-inset-bottom));
-    right: 155px; /* Lado esquerdo do botão "Ver tutorial" */
+    left: 20px; /* Movido para o lado esquerdo */
     z-index: 10000;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start; /* Alinha os itens à esquerda */
 }
 
 /* Launcher Button */
@@ -51,7 +51,7 @@
 #focus-ia-tooltip {
     position: absolute;
     bottom: 64px;
-    right: -10px;
+    left: -10px; /* Ajustado para o lado esquerdo */
     background: var(--focus-primary);
     color: white;
     padding: 8px 14px;
@@ -76,7 +76,7 @@
     content: '';
     position: absolute;
     bottom: -6px;
-    right: 22px;
+    left: 22px; /* Ajustado para o lado esquerdo */
     width: 0;
     height: 0;
     border-left: 6px solid transparent;
@@ -106,10 +106,9 @@
     margin-bottom: 15px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: var(--focus-transition);
-    transform-origin: bottom right;
-    /* Adjusting to open above the shifted launcher */
+    transform-origin: bottom left;
     position: relative;
-    right: -135px; /* Offset back to the right so it aligns with the screen edge more or less */
+    left: 0; /* Alinhado à esquerda */
 }
 
 #focus-ia-window.active {
@@ -444,11 +443,11 @@
 /* Responsive */
 @media (max-width: 480px) {
     #focus-ia-container {
-        right: 20px; /* Alinha com o padrão mobile */
-        bottom: 20px;
-        width: 100%;
-        pointer-events: none;
-        align-items: flex-end;
+        left: 15px; /* Lado esquerdo no mobile */
+        right: auto;
+        bottom: 15px;
+        width: calc(100vw - 30px);
+        align-items: flex-start;
     }
 
     #focus-ia-launcher, #focus-ia-tooltip {
@@ -456,11 +455,10 @@
     }
 
     #focus-ia-window {
-        width: calc(100vw - 40px);
-        height: calc(100svh - 100px); /* Usa svh para melhor suporte mobile */
-        right: 0;
-        margin-right: 0;
-        bottom: 70px;
+        width: 100%;
+        height: calc(100svh - 80px);
+        left: 0;
+        bottom: 60px;
         position: fixed;
         pointer-events: auto;
     }
