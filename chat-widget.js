@@ -6,7 +6,7 @@
     const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
     const API_ENDPOINT = isLocal 
         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM` 
-        : "/api/chat.php";
+        : "/focus-bridge.php";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP. 
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física. 
 Seja direto e motivador como um personal trainer experiente. 
