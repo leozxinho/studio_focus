@@ -1,6 +1,6 @@
 <?php
 /**
- * Focus IA - PHP API Bridge (Versão 2026 - Gemini 3.1)
+ * Focus IA - PHP API Bridge (Versão Ultra Compatível para Hostinger)
  */
 
 header('Content-Type: application/json');
@@ -13,38 +13,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => ['message' => 'Método não permitido']]);
-    exit;
-}
-
+// Obter dados (Suporta JSON ou Form POST tradicional)
 $json = file_get_contents('php://input');
 $input = json_decode($json, true);
+
+if (!$input && isset($_POST['messages'])) {
+    $input = [
+        'messages' => json_decode($_POST['messages'], true),
+        'system_prompt' => $_POST['system_prompt'] ?? ''
+    ];
+}
 
 $messages = $input['messages'] ?? null;
 $system_prompt = $input['system_prompt'] ?? null;
 
 if (!$messages || !$system_prompt) {
     http_response_code(400);
-    echo json_encode(['error' => ['message' => 'Dados insuficientes']]);
+    echo json_encode(['error' => ['message' => 'Dados insuficientes no servidor PHP']]);
     exit;
 }
 
-// --- CONFIGURAÇÃO (ATUALIZADA PARA 2026) ---
+// --- CONFIGURAÇÃO ---
 $API_KEY = "AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM";
-$MODEL = "gemini-3.1-flash-lite"; // Versão estável e ultra rápida de 2026
+$MODEL = "gemini-3.1-flash-lite";
 $API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{$MODEL}:generateContent?key={$API_KEY}";
 
 $payload = [
     "system_instruction" => [
-        "parts" => [
-            ["text" => $system_prompt]
-        ]
+        "parts" => [["text" => $system_prompt]]
     ],
     "contents" => $messages,
     "generationConfig" => [
-        "maxOutputTokens" => 4096, // Limite aumentado em 2026
+        "maxOutputTokens" => 4096,
         "temperature" => 0.7
     ]
 ];

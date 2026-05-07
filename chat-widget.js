@@ -335,25 +335,30 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
     // --- API Logic ---
     async function callGemini(messages) {
-        let body;
+        let response;
         if (isLocal) {
-            body = {
+            const body = {
                 system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
                 contents: messages,
                 generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
             };
+            response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
         } else {
-            body = {
-                system_prompt: SYSTEM_PROMPT,
-                messages: messages
-            };
-        }
+            // Em produção (Hostinger), enviamos como formulário para evitar o erro 405
+            const formData = new URLSearchParams();
+            formData.append('system_prompt', SYSTEM_PROMPT);
+            formData.append('messages', JSON.stringify(messages));
 
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
+            response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            });
+        }
 
         const data = await response.json();
         
