@@ -1,13 +1,9 @@
 /* Focus IA Chat Widget - Logic */
 
-(function() {
+(function () {
     // --- Constants & Config ---
     const STORAGE_KEY = "focus-ia-conversas";
-    const API_KEY = "AIzaSyBAWC3UM2Q9e0fvodLWKWzU-yBmAd98T0E";
-    const MODEL = "gemini-3-flash-preview";
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-    const FALLBACK_MODEL = "gemini-2.5-flash";
-    const FALLBACK_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_MODEL}:generateContent?key=${API_KEY}`;
+    const API_ENDPOINT = "/api/chat";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP. 
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física. 
 Seja direto e motivador como um personal trainer experiente. 
@@ -33,7 +29,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
         loadFromStorage();
         injectHTML();
         setupEventListeners();
-        
+
         if (!state.conversa_ativa || state.conversas.length === 0) {
             createNewConversation();
         } else {
@@ -78,11 +74,11 @@ Pronto para evoluir seu treino, alimentação e resultados.
     function deleteConversation(id, event) {
         if (event) event.stopPropagation();
         state.conversas = state.conversas.filter(c => c.id !== id);
-        
+
         if (state.conversa_ativa === id) {
             state.conversa_ativa = state.conversas.length > 0 ? state.conversas[state.conversas.length - 1].id : null;
         }
-        
+
         if (!state.conversa_ativa) {
             createNewConversation();
         } else {
@@ -98,7 +94,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
         renderActiveConversation();
         renderHistory();
         hideHistoryPanel();
-        
+
         // Hide chips if there's already user activity
         const conv = state.conversas.find(c => c.id === id);
         if (conv.messages.some(m => m.role === "user")) {
@@ -174,7 +170,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
             </button>
         `;
         document.body.appendChild(container);
-        
+
         // Load jsPDF
         const script = document.createElement('script');
         script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
@@ -250,7 +246,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
         const conv = state.conversas.find(c => c.id === state.conversa_ativa);
         const container = document.getElementById('focus-ia-messages');
         container.innerHTML = '';
-        
+
         if (conv) {
             conv.messages.forEach(msg => {
                 addMessageToUI(msg.role, msg.content);
@@ -263,15 +259,15 @@ Pronto para evoluir seu treino, alimentação e resultados.
     function renderHistory() {
         const list = document.getElementById('focus-ia-history-list');
         list.innerHTML = '';
-        
+
         [...state.conversas].reverse().forEach(conv => {
             const date = new Date(conv.data);
-            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')} às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-            
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+
             const item = document.createElement('div');
             item.className = `history-item ${conv.id === state.conversa_ativa ? 'active' : ''}`;
             item.onclick = () => setActiveConversation(conv.id);
-            
+
             item.innerHTML = `
                 <div class="history-item-content">
                     <div class="history-item-title">${conv.titulo}</div>
@@ -281,10 +277,10 @@ Pronto para evoluir seu treino, alimentação e resultados.
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                 </button>
             `;
-            
+
             const delBtn = item.querySelector('.history-delete-btn');
             delBtn.onclick = (e) => deleteConversation(conv.id, e);
-            
+
             list.appendChild(item);
         });
     }
@@ -293,12 +289,12 @@ Pronto para evoluir seu treino, alimentação e resultados.
         const container = document.getElementById('focus-ia-messages');
         const msgDiv = document.createElement('div');
         msgDiv.className = `focus-msg ${role === 'user' ? 'user' : 'ia'}`;
-        
+
         // Basic markdown-like support for bold and line breaks
         let formattedContent = content
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
-            
+
         msgDiv.innerHTML = formattedContent;
         container.appendChild(msgDiv);
     }
@@ -335,19 +331,18 @@ Pronto para evoluir seu treino, alimentação e resultados.
     }
 
     // --- API Logic ---
-    async function callGemini(url, messages) {
-        const response = await fetch(url, {
+    async function callGemini(messages) {
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                contents: messages,
-                generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
+                system_prompt: SYSTEM_PROMPT,
+                messages: messages
             })
         });
 
         const data = await response.json();
-        
+
         if (data.error) {
             const err = new Error(data.error.message || "Erro na API");
             err.code = data.error.code;
@@ -360,7 +355,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
             const textPart = parts.find(p => p.text);
             if (textPart) return textPart.text;
         }
-        
+
         throw new Error("Resposta inválida da IA");
     }
 
@@ -375,7 +370,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
         hideChips();
 
         const conv = state.conversas.find(c => c.id === state.conversa_ativa);
-        
+
         if (conv.messages.length === 1 && conv.messages[0].role === 'assistant') {
             conv.titulo = text.substring(0, 40);
         }
@@ -396,15 +391,10 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
             let aiMsg;
             try {
-                aiMsg = await callGemini(API_URL, geminiContents);
+                aiMsg = await callGemini(geminiContents);
             } catch (err) {
-                console.warn("Primary model failed, checking fallback:", err);
-                // Fallback if 503 (high demand) or 429 (rate limit) or 404 (not found)
-                if (err.code === 503 || err.code === 429 || err.code === 404 || err.status === "UNAVAILABLE") {
-                    aiMsg = await callGemini(FALLBACK_API_URL, geminiContents);
-                } else {
-                    throw err;
-                }
+                console.error("API Error:", err);
+                throw err;
             }
 
             hideTyping();
@@ -444,15 +434,15 @@ Pronto para evoluir seu treino, alimentação e resultados.
         // Header Decoration
         doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.rect(0, 0, 210, 40, 'F');
-        
+
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
         doc.setTextColor(255, 255, 255);
         doc.text("Studio Focus", 20, 20);
-        
+
         doc.setFontSize(14);
         doc.text("Relatório Focus IA", 20, 30);
-        
+
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(timestamp, 190, 30, { align: 'right' });
@@ -485,11 +475,11 @@ Pronto para evoluir seu treino, alimentação e resultados.
             doc.setFont("helvetica", "normal");
             doc.setFontSize(11);
             doc.setTextColor(60, 60, 60);
-            
+
             // Remove markdown bold for PDF text simplicity
             const cleanText = msg.content.replace(/\*\*(.*?)\*\*/g, '$1');
             const splitText = doc.splitTextToSize(cleanText, contentWidth);
-            
+
             doc.text(splitText, margin, y);
             y += (splitText.length * 6) + 12;
 
@@ -557,7 +547,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
         function showTooltip() {
             if (document.getElementById('focus-ia-window').classList.contains('active')) return;
-            
+
             tooltip.classList.add('active', 'focus-ia-pulse');
             setTimeout(() => {
                 tooltip.classList.remove('active', 'focus-ia-pulse');
@@ -566,7 +556,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
         // Primeira vez após 5 segundos
         setTimeout(showTooltip, 5000);
-        
+
         // Repete a cada 30 segundos
         setInterval(showTooltip, 30000);
     }
