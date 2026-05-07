@@ -3,7 +3,7 @@
 (function() {
     // --- Constants & Config ---
     const STORAGE_KEY = "focus-ia-conversas";
-    const API_KEY = "AIzaSyBcPc6gRM_uopxntgn3TIUcmpgIyob6Foc";
+    const API_KEY = "AIzaSyBAWC3UM2Q9e0fvodLWKWzU-yBmAd98T0E";
     const MODEL = "gemini-3-flash-preview";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
     const FALLBACK_MODEL = "gemini-2.5-flash";
