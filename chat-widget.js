@@ -530,23 +530,20 @@ Pronto para evoluir seu treino, alimentação e resultados.
     function setupViewportHandling() {
         if (!window.visualViewport || window.innerWidth > 480) return;
 
-        const container = document.getElementById('focus-ia-container');
-        if (!container) return;
+        const win = document.getElementById('focus-ia-window');
+        if (!win) return;
 
         const handleViewportChange = () => {
             const viewport = window.visualViewport;
             const windowHeight = window.innerHeight;
-            const keyboardHeight = windowHeight - viewport.height;
+            const keyboardHeight = Math.max(0, windowHeight - viewport.height);
 
-            if (keyboardHeight > 50) { // Threshold for keyboard detection
-                container.style.bottom = `${keyboardHeight + 10}px`;
-                container.style.left = '10px';
-                container.style.width = 'calc(100vw - 20px)';
-                scrollToBottom();
+            if (keyboardHeight > 50) { // Keyboard is open
+                win.style.bottom = `${keyboardHeight + 10}px`;
+                setTimeout(scrollToBottom, 50);
             } else {
-                container.style.bottom = '15px';
-                container.style.left = '15px';
-                container.style.width = '320px';
+                // Keyboard is closed
+                win.style.bottom = '70px';
             }
         };
 
