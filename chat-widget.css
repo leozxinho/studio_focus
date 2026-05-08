@@ -447,6 +447,130 @@
     cursor: not-allowed;
 }
 
+/* === MELHORIAS === */
+
+/* Listas dentro das mensagens */
+.focus-msg ul, .focus-msg ol {
+    margin: 6px 0 2px;
+    padding-left: 18px;
+}
+.focus-msg li {
+    margin-bottom: 3px;
+    line-height: 1.5;
+}
+
+/* Botão copiar */
+.focus-msg-copy {
+    position: absolute;
+    bottom: -14px;
+    right: 4px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    color: #888;
+    display: none;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    z-index: 2;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: var(--focus-transition);
+}
+.focus-msg.ia:hover .focus-msg-copy {
+    display: flex;
+}
+.focus-msg-copy:hover {
+    color: var(--focus-primary);
+    border-color: var(--focus-primary);
+}
+.focus-msg-copy.copied {
+    color: #22c55e;
+    border-color: #22c55e;
+    display: flex;
+}
+
+/* Botão parar digitação */
+#focus-ia-send.stop-mode {
+    background: #ef4444;
+    color: white;
+}
+#focus-ia-send.stop-mode:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+}
+
+/* Botão retry */
+.focus-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--focus-transition);
+}
+.focus-retry-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Botão rolar para o fim */
+#focus-ia-scroll-btn {
+    position: absolute;
+    bottom: 155px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--focus-primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 12px rgba(0,102,255,0.3);
+    z-index: 10;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: opacity 0.2s, box-shadow 0.2s;
+}
+#focus-ia-scroll-btn.visible {
+    display: flex;
+}
+#focus-ia-scroll-btn:hover {
+    box-shadow: 0 4px 16px rgba(0,102,255,0.45);
+}
+
+/* Indicador de conexão */
+.focus-ia-status-dot {
+    transition: background 0.5s, box-shadow 0.5s;
+}
+.focus-ia-status-dot.slow {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245,158,11,0.25);
+}
+.focus-ia-status-dot.offline {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239,68,68,0.25);
+}
+
+/* Botão som desativado */
+#focus-ia-sound-btn.muted {
+    opacity: 0.35;
+}
+
 /* Responsive - Tablets */
 @media (min-width: 481px) and (max-width: 768px) {
     #focus-ia-window {
