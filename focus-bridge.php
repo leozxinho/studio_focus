@@ -34,8 +34,13 @@ if (!$messages || !$system_prompt) {
 }
 
 // --- CONFIGURAÇÃO ---
-$API_KEY = "AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM";
-$MODEL = "gemini-3.1-flash-lite";
+$API_KEY = getenv('GEMINI_API_KEY');
+if (!$API_KEY) {
+    http_response_code(500);
+    echo json_encode(['error' => ['message' => 'GEMINI_API_KEY não configurada no servidor']]);
+    exit;
+}
+$MODEL = "gemini-2.5-flash";
 $API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{$MODEL}:generateContent?key={$API_KEY}";
 
 $payload = [

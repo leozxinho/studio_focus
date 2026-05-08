@@ -7,7 +7,7 @@
     const SOUND_KEY   = "focus-ia-sound";
     const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
     const API_ENDPOINT = isLocal
-        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDr8PKY_wMRl0vIk1mHxmqsPmQjvPWatU8`
+        ? "/focus-bridge.php"
         : "https://studiofocus.app.br/api/chat";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP.
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física.
