@@ -216,10 +216,14 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
     function toggleWindow() {
         const win = document.getElementById('focus-ia-window');
+        const tooltip = document.getElementById('focus-ia-tooltip');
         win.classList.toggle('active');
         if (win.classList.contains('active')) {
+            tooltip.classList.remove('active', 'focus-ia-pulse');
             scrollToBottom();
             document.getElementById('focus-ia-input').focus();
+        } else {
+            tooltip.classList.add('active', 'focus-ia-pulse');
         }
     }
 
@@ -557,19 +561,10 @@ Pronto para evoluir seu treino, alimentação e resultados.
         const tooltip = document.getElementById('focus-ia-tooltip');
         if (!tooltip) return;
 
-        function showTooltip() {
-            if (document.getElementById('focus-ia-window').classList.contains('active')) return;
-
-            tooltip.classList.add('active', 'focus-ia-pulse');
-            setTimeout(() => {
-                tooltip.classList.remove('active', 'focus-ia-pulse');
-            }, 6000); // Fica visível por 6 segundos
-        }
-
-        // Primeira vez após 5 segundos
-        setTimeout(showTooltip, 5000);
-
-        // Repete a cada 30 segundos
-        setInterval(showTooltip, 30000);
+        setTimeout(() => {
+            if (!document.getElementById('focus-ia-window').classList.contains('active')) {
+                tooltip.classList.add('active', 'focus-ia-pulse');
+            }
+        }, 2000);
     }
 })();

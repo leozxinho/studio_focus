@@ -85,12 +85,12 @@
 }
 
 .focus-ia-pulse {
-    animation: tooltip-bounce 2s infinite ease-in-out;
+    animation: tooltip-blink 1s infinite ease-in-out;
 }
 
-@keyframes tooltip-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+@keyframes tooltip-blink {
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    50% { opacity: 0; transform: translateY(4px); }
 }
 
 /* Main Chat Window */
@@ -459,17 +459,12 @@
 /* Responsive - Mobile */
 @media (max-width: 480px) {
     #focus-ia-container {
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        align-items: flex-end;
-        padding-right: 15px;
-        padding-bottom: max(15px, env(safe-area-inset-bottom));
-    }
-
-    #focus-ia-launcher {
-        margin-right: 0;
+        left: 15px;
+        bottom: 15px;
+        right: auto;
+        width: auto;
+        max-width: none;
+        align-items: flex-start;
     }
 
     #focus-ia-window {
