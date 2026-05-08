@@ -5,9 +5,9 @@
     const STORAGE_KEY = "focus-ia-conversas";
     const CACHE_KEY   = "focus-ia-cache";
     const SOUND_KEY   = "focus-ia-sound";
-    const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
     const API_ENDPOINT = isLocal
-        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=AIzaSyDp4jIYu82PEZe9ZOOKbp4HUpAzSG3XLcM`
+        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDr8PKY_wMRl0vIk1mHxmqsPmQjvPWatU8`
         : "https://studiofocus.app.br/api/chat";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP.
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física.
@@ -329,7 +329,18 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                 <button class="history-delete-btn" title="Excluir">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                 </button>`;
-            item.querySelector('.history-delete-btn').onclick = (e) => deleteConversation(conv.id, e);
+            item.querySelector('.history-delete-btn').onclick = (e) => {
+                e.stopPropagation();
+                if (item.querySelector('.history-confirm')) return;
+                const delBtn = item.querySelector('.history-delete-btn');
+                delBtn.style.display = 'none';
+                const confirm = document.createElement('div');
+                confirm.className = 'history-confirm';
+                confirm.innerHTML = `<span>Excluir?</span><button class="history-confirm-yes">Sim</button><button class="history-confirm-no">Não</button>`;
+                item.appendChild(confirm);
+                confirm.querySelector('.history-confirm-yes').onclick = (e) => { e.stopPropagation(); deleteConversation(conv.id); };
+                confirm.querySelector('.history-confirm-no').onclick  = (e) => { e.stopPropagation(); confirm.remove(); delBtn.style.display = ''; };
+            };
             list.appendChild(item);
         });
     }
@@ -491,25 +502,40 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         scrollToBottom();
     }
 
+    function getErrorMessage(error) {
+        if (error.name === 'AbortError') return "A conexão demorou demais. Verifique sua internet e tente novamente.";
+        if (error.code === 429) return "Limite de uso atingido. Aguarde alguns instantes e tente novamente.";
+        if (error.code === 503 || (error.message && error.message.includes("high demand"))) return "O serviço está sobrecarregado. Tente novamente em breve.";
+        return "Ops, tive um problema de conexão. Tente novamente.";
+    }
+
     // --- API Logic ---
     async function callGemini(messages) {
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 15000);
         let response;
-        if (isLocal) {
-            response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                    contents: messages,
-                    generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
-                })
-            });
-        } else {
-            response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ system_prompt: SYSTEM_PROMPT, messages })
-            });
+        try {
+            if (isLocal) {
+                response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                        contents: messages,
+                        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
+                    }),
+                    signal: controller.signal
+                });
+            } else {
+                response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ system_prompt: SYSTEM_PROMPT, messages }),
+                    signal: controller.signal
+                });
+            }
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         const data = await response.json();
@@ -548,9 +574,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
             hideTyping();
             setConnectionStatus('offline');
             setTimeout(() => setConnectionStatus('online'), 8000);
-            const msg = error.code === 503
-                ? "Serviço sobrecarregado. Aguarde um momento."
-                : "Ainda sem conexão. Tente mais tarde.";
+            const msg = getErrorMessage(error);
             showErrorWithRetry(msg, retryLastMessage);
         } finally {
             input.disabled = false;
@@ -572,6 +596,11 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         playSound('send');
 
         const conv = state.conversas.find(c => c.id === state.conversa_ativa);
+        if (!conv) {
+            input.disabled = false;
+            document.getElementById('focus-ia-send').disabled = false;
+            return;
+        }
         if (conv.messages.length === 1 && conv.messages[0].role === 'assistant') {
             conv.titulo = text.substring(0, 40);
         }
@@ -616,9 +645,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
             hideTyping();
             setConnectionStatus('offline');
             setTimeout(() => setConnectionStatus('online'), 8000);
-            const msg = (error.code === 503 || (error.message && error.message.includes("high demand")))
-                ? "O Focus IA está com muita demanda agora."
-                : "Ops, tive um problema de conexão.";
+            const msg = getErrorMessage(error);
             showErrorWithRetry(msg, retryLastMessage);
         } finally {
             input.disabled = false;
@@ -722,7 +749,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         if (!tooltip) return;
         if (document.getElementById('focus-ia-window').classList.contains('active')) return;
         tooltip.classList.add('active', 'focus-ia-pulse');
-        setTimeout(() => tooltip.classList.remove('active', 'focus-ia-pulse'), 3000);
+        setTimeout(() => tooltip.classList.remove('active', 'focus-ia-pulse'), 4000);
     }
 
     function startTooltipCycle() {
