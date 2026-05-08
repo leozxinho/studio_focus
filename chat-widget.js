@@ -439,7 +439,13 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         setSendAsStop(true);
 
         function step() {
-            if (!isTyping || i >= html.length) {
+            if (!isTyping) {
+                addCopyButton(msgDiv, content);
+                setSendAsStop(false);
+                if (onComplete) onComplete();
+                return;
+            }
+            if (i >= html.length) {
                 msgDiv.innerHTML = html;
                 addCopyButton(msgDiv, content);
                 isTyping = false;
