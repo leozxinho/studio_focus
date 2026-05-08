@@ -97,6 +97,7 @@
 #focus-ia-window {
     width: 380px;
     height: 600px;
+    max-height: calc(100vh - 100px);
     background: white;
     border-radius: 16px;
     box-shadow: var(--focus-shadow);
@@ -108,12 +109,18 @@
     transition: var(--focus-transition);
     transform-origin: bottom left;
     position: relative;
-    left: 0; /* Alinhado à esquerda */
+    left: 0;
 }
 
 #focus-ia-window.active {
     display: flex;
     animation: slideUp 0.3s ease-out;
+}
+
+#focus-ia-window.active ~ #focus-ia-launcher {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0);
 }
 
 @keyframes slideUp {
@@ -179,7 +186,7 @@
     flex-direction: column;
     gap: 15px;
     background: #fafafa;
-    max-height: 480px;
+    min-height: 0;
 }
 
 /* Custom Scrollbar */
@@ -440,15 +447,29 @@
     cursor: not-allowed;
 }
 
-/* Responsive */
+/* Responsive - Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+    #focus-ia-window {
+        width: 340px;
+        height: 520px;
+        max-height: calc(100vh - 100px);
+    }
+}
+
+/* Responsive - Mobile */
 @media (max-width: 480px) {
     #focus-ia-container {
-        left: 15px;
-        bottom: 15px;
-        right: auto;
-        width: auto;
-        max-width: none;
-        align-items: flex-start;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        align-items: flex-end;
+        padding-right: 15px;
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
+    }
+
+    #focus-ia-launcher {
+        margin-right: 0;
     }
 
     #focus-ia-window {
@@ -476,7 +497,6 @@
 
     #focus-ia-messages {
         padding: 15px;
-        max-height: none;
         gap: 10px;
     }
 
