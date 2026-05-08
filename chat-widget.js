@@ -223,7 +223,7 @@ Pronto para evoluir seu treino, alimentação e resultados.
             scrollToBottom();
             document.getElementById('focus-ia-input').focus();
         } else {
-            tooltip.classList.add('active', 'focus-ia-pulse');
+            setTimeout(flashTooltip, 1000);
         }
     }
 
@@ -267,7 +267,11 @@ Pronto para evoluir seu treino, alimentação e resultados.
         const list = document.getElementById('focus-ia-history-list');
         list.innerHTML = '';
 
-        [...state.conversas].reverse().forEach(conv => {
+        const conversasComInteracao = state.conversas.filter(c =>
+            c.messages.some(m => m.role === 'user')
+        );
+
+        [...conversasComInteracao].reverse().forEach(conv => {
             const date = new Date(conv.data);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 
@@ -292,18 +296,55 @@ Pronto para evoluir seu treino, alimentação e resultados.
         });
     }
 
+    function formatContent(content) {
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+
     function addMessageToUI(role, content) {
         const container = document.getElementById('focus-ia-messages');
         const msgDiv = document.createElement('div');
         msgDiv.className = `focus-msg ${role === 'user' ? 'user' : 'ia'}`;
-
-        // Basic markdown-like support for bold and line breaks
-        let formattedContent = content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\n/g, '<br>');
-
-        msgDiv.innerHTML = formattedContent;
+        msgDiv.innerHTML = formatContent(content);
         container.appendChild(msgDiv);
+    }
+
+    function typeMessageToUI(content, onComplete) {
+        const container = document.getElementById('focus-ia-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'focus-msg ia';
+        container.appendChild(msgDiv);
+
+        const html = formatContent(content);
+        let i = 0;
+        let displayed = '';
+
+        function step() {
+            if (i >= html.length) {
+                msgDiv.innerHTML = html;
+                if (onComplete) onComplete();
+                return;
+            }
+
+            if (html[i] === '<') {
+                const end = html.indexOf('>', i);
+                if (end !== -1) {
+                    displayed += html.slice(i, end + 1);
+                    i = end + 1;
+                    msgDiv.innerHTML = displayed;
+                    step();
+                    return;
+                }
+            }
+
+            displayed += html[i++];
+            msgDiv.innerHTML = displayed;
+            scrollToBottom();
+            setTimeout(step, 18);
+        }
+
+        step();
     }
 
     function showTyping() {
@@ -421,10 +462,9 @@ Pronto para evoluir seu treino, alimentação e resultados.
 
             hideTyping();
             conv.messages.push({ role: "assistant", content: aiMsg });
-            addMessageToUI('ia', aiMsg);
             saveToStorage();
             updatePDFButtonState();
-            scrollToBottom();
+            typeMessageToUI(aiMsg, scrollToBottom);
         } catch (error) {
             console.error("Final API Error:", error);
             hideTyping();
@@ -557,14 +597,16 @@ Pronto para evoluir seu treino, alimentação e resultados.
         window.visualViewport.addEventListener('scroll', handleViewportChange);
     }
 
-    function startTooltipCycle() {
+    function flashTooltip() {
         const tooltip = document.getElementById('focus-ia-tooltip');
         if (!tooltip) return;
+        if (document.getElementById('focus-ia-window').classList.contains('active')) return;
+        tooltip.classList.add('active', 'focus-ia-pulse');
+        setTimeout(() => tooltip.classList.remove('active', 'focus-ia-pulse'), 3000);
+    }
 
-        setTimeout(() => {
-            if (!document.getElementById('focus-ia-window').classList.contains('active')) {
-                tooltip.classList.add('active', 'focus-ia-pulse');
-            }
-        }, 2000);
+    function startTooltipCycle() {
+        setTimeout(flashTooltip, 2000);
+        setInterval(flashTooltip, 20000);
     }
 })();
