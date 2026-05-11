@@ -1083,6 +1083,17 @@ footer{
 .alarm-status-dot{width:7px;height:7px;border-radius:50%;background:var(--gr2);flex-shrink:0;transition:background .3s}
 .alarm-status-dot.off{background:var(--mt)}
 .alarm-empty{padding:8px 4px;font-size:12px;color:var(--mt);text-align:center;font-style:italic}
+.alarm-pwa-gate{display:none;flex-direction:column;align-items:center;text-align:center;padding:36px 24px 32px;gap:16px}
+.pwa-gate-icon{font-size:56px;line-height:1}
+.pwa-gate-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:rgba(0,102,255,.12);border:1px solid rgba(0,102,255,.25);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pu2);font-weight:600}
+.pwa-gate-title{font-family:var(--ff);font-size:32px;letter-spacing:2px;line-height:1.1;color:var(--tx)}
+.pwa-gate-desc{font-size:13px;color:var(--mt);line-height:1.7;max-width:300px}
+.pwa-install-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:var(--r);background:var(--pu);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;letter-spacing:.3px;box-shadow:0 4px 20px rgba(0,102,255,.4);transition:opacity .2s;width:100%;max-width:280px}
+.pwa-install-btn:active{opacity:.82}
+.pwa-ios-steps{width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px;text-align:left}
+.pwa-ios-step{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);font-size:12px;color:var(--tx);line-height:1.55}
+.pwa-ios-step-num{width:20px;height:20px;border-radius:50%;background:var(--pu);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.pwa-gate-note{font-size:10px;color:var(--mt);line-height:1.6;max-width:280px;font-style:italic}
 </style>
 
 <!-- Open Graph -->
@@ -1827,7 +1838,22 @@ footer{
    <div class="alarm-modal-title">ALARME DE SUPLEMENTOS</div>
    <button class="alarm-modal-close" id="alarm-modal-close" aria-label="Fechar">&#x2715;</button>
   </div>
-  <div class="alarm-body">
+  <!-- Gate PWA: exibido quando não está rodando como app instalado -->
+  <div id="alarm-pwa-gate" class="alarm-pwa-gate">
+   <div class="pwa-gate-icon">📱</div>
+   <div class="pwa-gate-badge">Necessário</div>
+   <div class="pwa-gate-title">Instale o App</div>
+   <div class="pwa-gate-desc">Os alarmes precisam que o Studio Focus esteja instalado como app no celular para disparar notificações de forma confiável.</div>
+   <button class="pwa-install-btn" id="pwa-install-btn" onclick="installAlarmPWA()">Instalar na tela inicial</button>
+   <div class="pwa-ios-steps" id="pwa-ios-steps" style="display:none">
+    <div class="pwa-ios-step"><div class="pwa-ios-step-num">1</div><span>Toque no botão <strong>Compartilhar</strong> (ícone &#x2B06; na barra inferior do Safari)</span></div>
+    <div class="pwa-ios-step"><div class="pwa-ios-step-num">2</div><span>Role e toque em <strong>"Adicionar à Tela de Início"</strong></span></div>
+    <div class="pwa-ios-step"><div class="pwa-ios-step-num">3</div><span>Confirme tocando em <strong>"Adicionar"</strong> no canto superior direito</span></div>
+   </div>
+   <p class="pwa-gate-note">Após instalar, abra pelo ícone na tela inicial e configure seus alarmes aqui.</p>
+  </div>
+  <!-- Config: exibido apenas quando está rodando como PWA instalada -->
+  <div id="alarm-config" class="alarm-body" style="display:none">
    <div class="alarm-perm-banner" id="alarm-perm-banner">
     <span>🔔</span>
     <span>Permita notificações para receber os alarmes no celular.</span>
@@ -1875,7 +1901,7 @@ footer{
     <span id="alarm-status-txt">Nenhum alarme ativo.</span>
    </div>
    <p style="font-size:10px;color:var(--mt);text-align:center;line-height:1.6;padding:0 8px 4px;font-style:italic">
-    Os alarmes funcionam enquanto o app está aberto. Para melhor experiência, adicione à tela inicial como PWA.
+    Os alarmes funcionam com o app aberto ou em segundo plano no Android.
    </p>
   </div>
  </div>
@@ -3701,6 +3727,41 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     whey: { active: false, times: [] }
   };
 
+  // Capture install prompt (Android/Chrome)
+  let _installPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _installPrompt = e;
+  });
+
+  function isPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: fullscreen)').matches ||
+           window.navigator.standalone === true;
+  }
+
+  window.installAlarmPWA = function() {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (_installPrompt) {
+      _installPrompt.prompt();
+      _installPrompt.userChoice.then(function(r) {
+        if (r.outcome === 'accepted') {
+          showToast('App instalado! Abra pelo ícone na tela inicial.', 'success');
+          _installPrompt = null;
+          closeModal('alarm-modal-overlay');
+        }
+      });
+    } else if (isIOS) {
+      const steps = document.getElementById('pwa-ios-steps');
+      const btn = document.getElementById('pwa-install-btn');
+      const visible = steps && steps.style.display !== 'none';
+      if (steps) steps.style.display = visible ? 'none' : 'flex';
+      if (btn) btn.textContent = visible ? 'Ver como instalar no iPhone' : 'Ocultar instruções';
+    } else {
+      showToast('Abra o menu do navegador (⋮) e toque em "Adicionar à tela inicial".', 'info');
+    }
+  };
+
   function loadAlarms() {
     try { return Object.assign({creatina:{active:false,times:[]},whey:{active:false,times:[]}}, JSON.parse(localStorage.getItem(STORAGE_KEY))||{}); }
     catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -3798,15 +3859,35 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   };
 
   window.openAlarmModal = function() {
-    const d = loadAlarms();
-    const tc = document.getElementById('alarm-creatina-toggle');
-    const tw = document.getElementById('alarm-whey-toggle');
-    if (tc) tc.checked = !!d.creatina.active;
-    if (tw) tw.checked = !!d.whey.active;
-    renderTimes('creatina', d.creatina.times || []);
-    renderTimes('whey', d.whey.times || []);
-    updatePermBanner();
-    updateStatus();
+    const pwa = isPWA();
+    const gate = document.getElementById('alarm-pwa-gate');
+    const config = document.getElementById('alarm-config');
+    if (gate) gate.style.display = pwa ? 'none' : 'flex';
+    if (config) config.style.display = pwa ? 'flex' : 'none';
+
+    if (!pwa) {
+      // Ajusta botão conforme plataforma
+      const btn = document.getElementById('pwa-install-btn');
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (btn) {
+        if (isIOS) btn.textContent = 'Ver como instalar no iPhone';
+        else if (_installPrompt) btn.textContent = 'Instalar na tela inicial';
+        else btn.textContent = 'Adicionar à tela inicial';
+      }
+      // Reseta instruções iOS
+      const steps = document.getElementById('pwa-ios-steps');
+      if (steps) steps.style.display = 'none';
+    } else {
+      const d = loadAlarms();
+      const tc = document.getElementById('alarm-creatina-toggle');
+      const tw = document.getElementById('alarm-whey-toggle');
+      if (tc) tc.checked = !!d.creatina.active;
+      if (tw) tw.checked = !!d.whey.active;
+      renderTimes('creatina', d.creatina.times || []);
+      renderTimes('whey', d.whey.times || []);
+      updatePermBanner();
+      updateStatus();
+    }
     openModal('alarm-modal-overlay');
   };
 
