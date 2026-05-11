@@ -275,7 +275,8 @@ display:flex;flex-direction:column;gap:2px}
 }
 .planos-modal-header{
  display:flex;align-items:center;justify-content:space-between;
- padding:16px 20px;border-bottom:1px solid var(--bd);
+ padding:16px 20px;padding-top:calc(env(safe-area-inset-top) + 16px);
+ border-bottom:1px solid var(--bd);
  background:var(--s2);position:sticky;top:0;z-index:1;
 }
 .planos-modal-title{font-family:var(--ff);font-size:20px;letter-spacing:3px;color:var(--tx)}
@@ -856,7 +857,7 @@ footer{
  display:none;position:fixed;inset:0;z-index:500;
  background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
  align-items:flex-start;justify-content:center;
- overflow-y:auto;padding:12px 12px 40px;
+ overflow-y:auto;padding:max(env(safe-area-inset-top),12px) 12px 40px;
 }
 @media(min-width:520px){.treino-modal-overlay{align-items:center;padding:24px}}
 .treino-modal-overlay.open{display:flex}
@@ -977,7 +978,7 @@ footer{
  display:none;position:fixed;inset:0;z-index:510;
  background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
  align-items:flex-start;justify-content:center;
- overflow-y:auto;padding:12px 12px 40px;
+ overflow-y:auto;padding:max(env(safe-area-inset-top),12px) 12px 40px;
 }
 @media(min-width:520px){.plano-modal-overlay{align-items:center;padding:24px}}
 .plano-modal-overlay.open{display:flex}
@@ -1053,7 +1054,7 @@ footer{
 .alarm-modal-overlay.open{display:flex}
 .alarm-modal{background:var(--bg);border:1px solid var(--bd2);width:100%;min-height:100vh;display:flex;flex-direction:column}
 @media(min-width:600px){.alarm-modal-overlay{padding:24px}.alarm-modal{min-height:auto;border-radius:var(--rxl);max-width:480px;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,.6)}}
-.alarm-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bd);background:var(--s2);position:sticky;top:0;z-index:1}
+.alarm-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;padding-top:calc(env(safe-area-inset-top) + 16px);border-bottom:1px solid var(--bd);background:var(--s2);position:sticky;top:0;z-index:1}
 .alarm-modal-title{font-family:var(--ff);font-size:20px;letter-spacing:3px;color:var(--tx)}
 .alarm-modal-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd2);background:transparent;color:var(--mt);font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0;cursor:pointer}
 .alarm-modal-close:hover{background:var(--s3)}
@@ -4020,9 +4021,40 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     }
   }
 
+  // Envia agenda de alarmes ao SW para disparo mesmo com app em background
+  function syncAlarmsToSW() {
+    if (!('serviceWorker' in navigator)) return;
+    var d = loadAlarms();
+    var alarms = [];
+    SUPPS.forEach(function(s) {
+      var info = d[s.key];
+      if (!info || !info.active || !info.times || !info.times.length) return;
+      info.times.forEach(function(t) {
+        alarms.push({ time: t, title: s.title, body: s.body, tag: s.tag });
+      });
+    });
+    // Usa ready para garantir que o SW ativo receba a mensagem
+    navigator.serviceWorker.ready.then(function(reg) {
+      if (reg.active) reg.active.postMessage({ type: 'SCHEDULE_ALARMS', alarms: alarms });
+    }).catch(function() {});
+  }
+
+  // Sincroniza ao salvar, adicionar ou remover horários
+  var _origSave          = window.saveAlarms;
+  var _origAdd           = window.addAlarmTime;
+  var _origRemove        = window.removeAlarmTime;
+  window.saveAlarms      = function()      { _origSave();          syncAlarmsToSW(); };
+  window.addAlarmTime    = function(s)     { _origAdd(s);          syncAlarmsToSW(); };
+  window.removeAlarmTime = function(s, i)  { _origRemove(s, i);    syncAlarmsToSW(); };
+
+  // Sincroniza assim que o SW estiver pronto no carregamento da página
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(function() { syncAlarmsToSW(); }).catch(function() {});
+  }
+
   // Re-verifica ao app voltar ao primeiro plano (ex: usuário re-abre o PWA)
   document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) checkAlarms();
+    if (!document.hidden) { checkAlarms(); syncAlarmsToSW(); }
   });
 
   setInterval(checkAlarms, 10000);

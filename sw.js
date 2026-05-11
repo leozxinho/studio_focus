@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studio-focus-v3';
+const CACHE_NAME = 'studio-focus-v4';
 // Arquivos que ficam em cache para uso offline
 const STATIC_ASSETS = [
   './manifest.json',
@@ -59,17 +59,51 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Alarmes agendados por setTimeout dentro do SW
+// (funciona mesmo com a aba em background; o SW sobrevive por tempo limitado após o app fechar)
+let _swAlarmTimeouts = [];
+
+function showAlarmNotification(title, body, tag) {
+  return self.registration.showNotification(title, {
+    body, icon: './icon-192.png', badge: './icon-192.png',
+    tag, renotify: true, vibrate: [200, 100, 200]
+  });
+}
+
+function scheduleAlarmsInSW(alarms) {
+  _swAlarmTimeouts.forEach(t => clearTimeout(t));
+  _swAlarmTimeouts = [];
+
+  const now = Date.now();
+
+  alarms.forEach((alarm) => {
+    const [h, m] = alarm.time.split(':').map(Number);
+    const target = new Date();
+    target.setHours(h, m, 0, 0);
+    if (target.getTime() <= now) target.setDate(target.getDate() + 1);
+
+    const delay = target.getTime() - now;
+    const t = setTimeout(() => {
+      showAlarmNotification(alarm.title, alarm.body, alarm.tag);
+    }, delay);
+    _swAlarmTimeouts.push(t);
+  });
+}
+
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+  if (!event.data) return;
+
+  if (event.data.type === 'SHOW_NOTIFICATION') {
     event.waitUntil(
-      self.registration.showNotification(event.data.title, {
-        body:      event.data.body,
-        icon:      './icon-192.png',
-        badge:     './icon-192.png',
-        tag:       event.data.tag || 'supplement-alarm',
-        renotify:  true,
-        vibrate:   [200, 100, 200]
-      })
+      showAlarmNotification(
+        event.data.title,
+        event.data.body,
+        event.data.tag || 'supplement-alarm'
+      )
     );
+  }
+
+  if (event.data.type === 'SCHEDULE_ALARMS') {
+    scheduleAlarmsInSW(event.data.alarms || []);
   }
 });
