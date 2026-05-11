@@ -3709,11 +3709,41 @@ function showToast(msg, type='info') {
   window.addEventListener('orientationchange', function(){ setTimeout(setAppVh, 150); });
 })();
 
-// Service Worker Registration
+// Service Worker Registration + detecção de atualização
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW falhou: ', err));
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          // Novo SW instalado e pronto — avisa o usuário
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(err => console.log('SW falhou: ', err));
   });
+}
+
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.innerHTML =
+    '<span>Nova versão disponível!</span>' +
+    '<button onclick="window.location.reload()">Atualizar</button>' +
+    '<button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:inherit;font-size:18px;cursor:pointer;padding:0 4px;opacity:.7">×</button>';
+  banner.style.cssText =
+    'position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%);' +
+    'z-index:9999;display:flex;align-items:center;gap:10px;' +
+    'background:#1e3a5f;border:1px solid rgba(61,154,255,.4);color:#e0eeff;' +
+    'padding:10px 16px;border-radius:12px;font-size:13px;font-family:var(--fb);' +
+    'box-shadow:0 4px 24px rgba(0,0,0,.5);white-space:nowrap;';
+  banner.querySelector('button').style.cssText =
+    'background:var(--pu);color:#fff;border:none;border-radius:8px;' +
+    'padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;';
+  document.body.appendChild(banner);
 }
 document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.createIcons();});
 </script>
