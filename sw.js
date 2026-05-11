@@ -38,3 +38,16 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    event.waitUntil(
+      self.registration.showNotification(event.data.title, {
+        body: event.data.body,
+        vibrate: [200, 100, 200],
+        tag: 'supplement-alarm',
+        renotify: true
+      })
+    );
+  }
+});
