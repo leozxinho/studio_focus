@@ -3870,12 +3870,29 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   };
 
   window.saveAlarms = function() {
+    // Só lê do DOM quando o painel de configuração está visível.
+    // Se o modal estiver fechado, os inputs estão vazios e salvar apagaria os dados do usuário.
+    var config = document.getElementById('alarm-config');
+    if (!config || config.style.display === 'none') {
+      updateStatus();
+      return;
+    }
+
+    var existing = loadAlarms();
     var tc = document.getElementById('alarm-creatina-toggle');
     var tw = document.getElementById('alarm-whey-toggle');
-    var d  = {
-      creatina: { active: tc ? !!tc.checked : false, times: getTimesFor('creatina') },
-      whey:     { active: tw ? !!tw.checked : false, times: getTimesFor('whey') }
+
+    var d = {
+      creatina: {
+        active: tc ? !!tc.checked : existing.creatina.active,
+        times:  getTimesFor('creatina')
+      },
+      whey: {
+        active: tw ? !!tw.checked : existing.whey.active,
+        times:  getTimesFor('whey')
+      }
     };
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
     updateStatus();
   };
