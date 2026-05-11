@@ -56,10 +56,11 @@ button{cursor:pointer;font-family:var(--fb)}
 nav{
  position:fixed;top:0;left:0;right:0;z-index:200;
  display:flex;align-items:center;justify-content:space-between;
- padding:0 16px;height:56px;
+ padding:0 16px;
+ padding-top:env(safe-area-inset-top);
+ height:calc(56px + env(safe-area-inset-top));
  background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
  border-bottom:1px solid var(--bd);transition:background .3s;
- padding-top:env(safe-area-inset-top);
 }
 .nav-logo{display:flex;align-items:center;gap:10px}
 .nav-logo-svg{width:36px;height:36px;flex-shrink:0}
