@@ -798,7 +798,8 @@ footer{
 .tut-skip-link{text-align:center;margin-top:12px;font-size:11px;color:var(--mt)}
 .tut-skip-link a{color:var(--pu2)}
 .tut-overlay{position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:0;transition:opacity .3s}
-.tut-overlay.show{opacity:1;pointer-events:all}
+.tut-overlay.show{opacity:1}
+.tut-overlay.show .tut-card{pointer-events:all}
 .tut-spotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.75);border:2.5px solid var(--pu2);pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);z-index:9998}
 .tut-card{position:absolute;background:var(--s1);border:1px solid rgba(61,154,255,.4);border-radius:var(--rl);padding:16px;max-width:min(280px,88vw);box-shadow:0 8px 32px rgba(0,0,0,.45);z-index:9999;pointer-events:all;transition:all .4s cubic-bezier(.4,0,.2,1)}
 .tut-step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pu);color:#fff;font-size:10px;font-weight:700;margin-bottom:6px}
@@ -3716,13 +3717,18 @@ function renderTutStep(){
  const r=el.getBoundingClientRect(),PAD=8
  if(r.width===0&&r.height===0){setTimeout(()=>renderTutStep(),200);return}
  const sp=document.getElementById('tut-spotlight')
- sp.style.top=(r.top-PAD+window.scrollY)+'px';sp.style.left=(r.left-PAD)+'px'
+ // overlay é position:fixed;inset:0 — coordenadas já são relativas ao viewport, sem scrollY
+ sp.style.top=(r.top-PAD)+'px';sp.style.left=(r.left-PAD)+'px'
  sp.style.width=(r.width+PAD*2)+'px';sp.style.height=(r.height+PAD*2)+'px'
- const card=document.getElementById('tut-card'),cardW=270,vw=window.innerWidth
+ const card=document.getElementById('tut-card'),cardW=270,vw=window.innerWidth,vh=window.innerHeight
+ const cardH=200 // altura aproximada do card para clamp vertical
  let left,top
- if(step.pos==='right'){left=r.right+12;top=r.top+window.scrollY;if(left+cardW>vw-8)left=r.left-cardW-12}
- else{left=Math.min(r.left,vw-cardW-8);top=r.bottom+12+window.scrollY}
- card.style.left=Math.max(8,left)+'px';card.style.top=top+'px';card.style.maxWidth=Math.min(cardW,vw-16)+'px'
+ if(step.pos==='right'){left=r.right+12;top=r.top;if(left+cardW>vw-8)left=r.left-cardW-12}
+ else{left=Math.min(r.left,vw-cardW-8);top=r.bottom+12}
+ // clamp: card nunca sai da viewport
+ left=Math.max(8,Math.min(left,vw-cardW-8))
+ top=Math.max(8,Math.min(top,vh-cardH-8))
+ card.style.left=left+'px';card.style.top=top+'px';card.style.maxWidth=Math.min(cardW,vw-16)+'px'
  document.getElementById('tut-num').textContent=_tutStep+1
  document.getElementById('tut-total').textContent='de '+total
  document.getElementById('tut-title').textContent=step.title
