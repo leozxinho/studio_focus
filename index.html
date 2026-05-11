@@ -3634,28 +3634,77 @@ async function gerarPDFSim(){
 
 /* TUTORIAL */
 const TUT_STEPS=[
- {targetId:'hamburger',title:'Menu de Ferramentas',desc:'Toque aqui para abrir o menu lateral com todas as ferramentas gratuitas: IMC, Calorias, Hidratação, Macros e Simulador de Metas.',arrow:'arrow-top',pos:'below'},
- {targetId:'drawer-imc-btn',title:'Calculadora de IMC',desc:'Calcula seu Índice de Massa Corporal e gera um relatório PDF completo com classificação OMS e recomendações personalizadas.',arrow:'arrow-left',pos:'right',openDrawer:true},
- {targetId:'drawer-cal-btn',title:'Calculadora de Calorias',desc:'Descubra sua necessidade calórica diária (TMB e TDEE) com base no seu perfil e nível de atividade física. Relatório em PDF incluso.',arrow:'arrow-left',pos:'right',keepDrawer:true},
- {targetId:'drawer-agua-btn',title:'Hidratação Diária',desc:'Sua meta personalizada de água por dia, distribuída em manhã, tarde e noite. Gerencie sua hidratação de forma inteligente.',arrow:'arrow-left',pos:'right',keepDrawer:true},
- {targetId:'drawer-macro-btn',title:'Calculadora de Macros',desc:'Proteínas, carboidratos e gorduras por dia, ajustados ao seu objetivo e estilo alimentar (padrão, low carb ou high carb).',arrow:'arrow-left',pos:'right',keepDrawer:true},
- {targetId:'drawer-sim-btn',title:'Simulador de Metas',desc:'Veja em quanto tempo você atinge seu objetivo em 3 cenários diferentes — com linha do tempo e relatório PDF completo.',arrow:'arrow-left',pos:'right',keepDrawer:true},
- {targetId:'drawer-rm-btn',title:'Calculadora de 1RM',desc:'Estime sua carga máxima usando a fórmula de Epley e gere um relatório PDF em segundos.',arrow:'arrow-left',pos:'right',keepDrawer:true},
+ {targetId:'hamburger',
+  title:'Menu de Ferramentas',
+  desc:'Toque aqui para abrir o menu lateral com todas as ferramentas gratuitas do Studio Focus.',
+  pos:'below'},
+ {targetId:'drawer-imc-btn',
+  title:'Calculadora de IMC',
+  desc:'Calcula seu Índice de Massa Corporal com classificação OMS, peso ideal, TMB e relatório em PDF.',
+  pos:'right',openDrawer:true},
+ {targetId:'drawer-cal-btn',
+  title:'Calculadora de Calorias',
+  desc:'Descubra sua necessidade calórica diária (TMB e TDEE) com base no seu perfil e nível de atividade.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-agua-btn',
+  title:'Hidratação Diária',
+  desc:'Sua meta personalizada de água distribuída em manhã, tarde e noite. Inclui dicas e alertas de hidratação.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-macro-btn',
+  title:'Calculadora de Macros',
+  desc:'Proteínas, carboidratos e gorduras por dia, ajustados ao seu objetivo e estilo alimentar.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-sim-btn',
+  title:'Simulador de Metas',
+  desc:'Veja em quanto tempo você atinge seu objetivo em 3 cenários — perda de peso, ganho de massa ou manutenção.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-rm-btn',
+  title:'Calculadora de 1RM',
+  desc:'Estime sua carga máxima com a fórmula de Epley. Saiba o máximo que você consegue levantar em cada exercício.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-alarm-btn',
+  title:'Alarme de Suplementos',
+  desc:'Configure horários para receber notificações no celular lembrando de tomar creatina e whey. Requer instalação como app.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-treino-btn',
+  title:'Monte seu Treino',
+  desc:'Biblioteca completa de exercícios com técnica, grupos musculares, variações e séries recomendadas.',
+  pos:'right',keepDrawer:true},
+ {targetId:'drawer-plano-btn',
+  title:'Meu Treino Semanal',
+  desc:'Visualize seu treino organizado por dia da semana — segunda a sábado — pronto para seguir na academia.',
+  pos:'right',keepDrawer:true},
+ {targetId:'nav-planos-btn',
+  title:'Veja Nossos Planos',
+  desc:'Conheça os planos do Studio Focus e comece sua transformação com acompanhamento profissional!',
+  pos:'below',closeDrawer:true,forceShow:true},
 ]
 let _tutStep=0,_tutActive=false
 function abrirTutorial(){document.getElementById('tut-welcome').classList.add('show')}
 function showTutWelcome(){document.getElementById('tut-welcome').classList.add('show')}
 function skipTutorial(forever=false){if(forever){const d=new Date;d.setFullYear(d.getFullYear()+1);document.cookie='sf_tut_done=1;expires='+d.toUTCString()+';path=/;SameSite=Lax'}document.getElementById('tut-welcome').classList.remove('show')}
 function startTutorial(){document.getElementById('tut-welcome').classList.remove('show');_tutStep=0;_tutActive=true;renderTutStep();document.getElementById('tut-overlay').classList.add('show')}
-function endTutorial(){_tutActive=false;document.getElementById('tut-overlay').classList.remove('show');document.getElementById('tut-spotlight').style.cssText='';closeDrawer()}
+function endTutorial(){
+ _tutActive=false
+ document.getElementById('tut-overlay').classList.remove('show')
+ document.getElementById('tut-spotlight').style.cssText=''
+ closeDrawer()
+ // Restaura visibilidade do botão de planos caso tenha sido forçado no mobile
+ const pb=document.getElementById('nav-planos-btn')
+ if(pb&&pb._tutForced){pb.style.display='';pb._tutForced=false}
+ // Abre o modal de planos ao concluir o tutorial
+ setTimeout(()=>openModal('planos-modal-overlay'),350)
+}
 function tutStep(dir){_tutStep+=dir;if(_tutStep<0)_tutStep=0;if(_tutStep>=TUT_STEPS.length){endTutorial();return}renderTutStep()}
 function renderTutStep(){
  const step=TUT_STEPS[_tutStep],total=TUT_STEPS.length
  if(step.openDrawer)openDrawer();else if(step.closeDrawer)closeDrawer()
- const outerDelay=step.openDrawer?420:20
+ const outerDelay=step.openDrawer?420:step.closeDrawer?320:20
  setTimeout(()=>{
  const el=document.getElementById(step.targetId);if(!el)return
- // Scroll within drawer if needed
+ // Força visibilidade de elementos ocultos em mobile (ex: nav-planos-btn)
+ if(step.forceShow&&el.offsetParent===null){el.style.display='flex';el._tutForced=true}
+ // Scroll dentro do drawer se necessário
  const drawer=document.getElementById('drawer')
  if(drawer&&drawer.contains(el)){
   const db=drawer.querySelector('.drawer-body')||drawer
@@ -3665,7 +3714,6 @@ function renderTutStep(){
  }
  setTimeout(()=>{
  const r=el.getBoundingClientRect(),PAD=8
- // Guard: if element not in viewport (drawer still animating), retry once
  if(r.width===0&&r.height===0){setTimeout(()=>renderTutStep(),200);return}
  const sp=document.getElementById('tut-spotlight')
  sp.style.top=(r.top-PAD+window.scrollY)+'px';sp.style.left=(r.left-PAD)+'px'
