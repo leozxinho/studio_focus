@@ -63,10 +63,12 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
     event.waitUntil(
       self.registration.showNotification(event.data.title, {
-        body: event.data.body,
-        vibrate: [200, 100, 200],
-        tag: 'supplement-alarm',
-        renotify: true
+        body:      event.data.body,
+        icon:      './icon-192.png',
+        badge:     './icon-192.png',
+        tag:       event.data.tag || 'supplement-alarm',
+        renotify:  true,
+        vibrate:   [200, 100, 200]
       })
     );
   }

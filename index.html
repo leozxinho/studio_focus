@@ -3755,11 +3755,8 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
 <script>
 /* ALARME DE SUPLEMENTOS */
 (function(){
-  const STORAGE_KEY = 'sf_alarms';
-  const DEFAULT = {
-    creatina: { active: false, times: [] },
-    whey: { active: false, times: [] }
-  };
+  const STORAGE_KEY    = 'sf_alarms';
+  const FIRED_KEY      = 'sf_alarms_fired'; // persiste para evitar duplo-disparo após recarga
 
   // Capture install prompt (Android/Chrome)
   let _installPrompt = null;
@@ -3787,43 +3784,73 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
       });
     } else if (isIOS) {
       const steps = document.getElementById('pwa-ios-steps');
-      const btn = document.getElementById('pwa-install-btn');
+      const btn   = document.getElementById('pwa-install-btn');
       const visible = steps && steps.style.display !== 'none';
       if (steps) steps.style.display = visible ? 'none' : 'flex';
-      if (btn) btn.textContent = visible ? 'Ver como instalar no iPhone' : 'Ocultar instruções';
+      if (btn)   btn.textContent = visible ? 'Ver como instalar no iPhone' : 'Ocultar instruções';
     } else {
       showToast('Abra o menu do navegador (⋮) e toque em "Adicionar à tela inicial".', 'info');
     }
   };
 
+  // FIX 1: merge profundo garante que times[] existe sempre
   function loadAlarms() {
-    try { return Object.assign({creatina:{active:false,times:[]},whey:{active:false,times:[]}}, JSON.parse(localStorage.getItem(STORAGE_KEY))||{}); }
-    catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
+    var def = { creatina:{active:false,times:[]}, whey:{active:false,times:[]} };
+    try {
+      var raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      ['creatina','whey'].forEach(function(k) {
+        if (!raw[k]) { raw[k] = { active:false, times:[] }; return; }
+        if (!Array.isArray(raw[k].times)) raw[k].times = [];
+        if (typeof raw[k].active !== 'boolean') raw[k].active = false;
+      });
+      return raw;
+    } catch(e) { return def; }
+  }
+
+  // FIX 2: fired set persiste em localStorage (evita duplo-disparo após reload)
+  function loadFired() {
+    try {
+      var today = new Date().toDateString();
+      var raw   = JSON.parse(localStorage.getItem(FIRED_KEY)) || {};
+      // descarta dias anteriores
+      if (raw.day !== today) return { day:today, keys:[] };
+      return raw;
+    } catch(e) { return { day:new Date().toDateString(), keys:[] }; }
+  }
+
+  function hasFired(key) {
+    return loadFired().keys.indexOf(key) !== -1;
+  }
+
+  function markFired(key) {
+    var f = loadFired();
+    if (f.keys.indexOf(key) === -1) f.keys.push(key);
+    localStorage.setItem(FIRED_KEY, JSON.stringify(f));
   }
 
   function getTimesFor(supp) {
-    const c = document.getElementById('alarm-'+supp+'-times');
+    var c = document.getElementById('alarm-'+supp+'-times');
     if (!c) return [];
-    return Array.from(c.querySelectorAll('.alarm-time-input')).map(el=>el.value).filter(v=>v);
+    return Array.from(c.querySelectorAll('.alarm-time-input')).map(function(el){ return el.value; }).filter(Boolean);
   }
 
   function renderTimes(supp, times) {
-    const c = document.getElementById('alarm-'+supp+'-times');
+    var c = document.getElementById('alarm-'+supp+'-times');
     if (!c) return;
-    if (!times.length) {
+    if (!times || !times.length) {
       c.innerHTML = '<div class="alarm-empty">Nenhum horário configurado</div>';
       return;
     }
-    c.innerHTML = times.map((t,i) =>
-      '<div class="alarm-time-item">' +
+    c.innerHTML = times.map(function(t,i) {
+      return '<div class="alarm-time-item">' +
         '<input type="time" class="alarm-time-input" value="'+t+'" onchange="saveAlarms()">' +
         '<button class="alarm-time-del" onclick="removeAlarmTime(\''+supp+'\','+i+')" aria-label="Remover">\xd7</button>' +
-      '</div>'
-    ).join('');
+      '</div>';
+    }).join('');
   }
 
   window.addAlarmTime = function(supp) {
-    const d = loadAlarms();
+    var d = loadAlarms();
     d[supp].times.push('08:00');
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
     renderTimes(supp, d[supp].times);
@@ -3831,7 +3858,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   };
 
   window.removeAlarmTime = function(supp, idx) {
-    const d = loadAlarms();
+    var d = loadAlarms();
     d[supp].times.splice(idx, 1);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
     renderTimes(supp, d[supp].times);
@@ -3839,25 +3866,28 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   };
 
   window.saveAlarms = function() {
-    const d = {
-      creatina: { active: !!(document.getElementById('alarm-creatina-toggle')||{}).checked, times: getTimesFor('creatina') },
-      whey:     { active: !!(document.getElementById('alarm-whey-toggle')||{}).checked,     times: getTimesFor('whey') }
+    var tc = document.getElementById('alarm-creatina-toggle');
+    var tw = document.getElementById('alarm-whey-toggle');
+    var d  = {
+      creatina: { active: tc ? !!tc.checked : false, times: getTimesFor('creatina') },
+      whey:     { active: tw ? !!tw.checked : false, times: getTimesFor('whey') }
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
     updateStatus();
   };
 
   function updateStatus() {
-    const d = loadAlarms();
-    const dot = document.getElementById('alarm-status-dot');
-    const txt = document.getElementById('alarm-status-txt');
+    var d   = loadAlarms();
+    var dot = document.getElementById('alarm-status-dot');
+    var txt = document.getElementById('alarm-status-txt');
     if (!dot || !txt) return;
-    const active = (d.creatina.active && d.creatina.times.length) || (d.whey.active && d.whey.times.length);
+    var active = (d.creatina.active && d.creatina.times.length) ||
+                 (d.whey.active     && d.whey.times.length);
     dot.className = 'alarm-status-dot' + (active ? '' : ' off');
     if (active) {
-      const parts = [];
-      if (d.creatina.active) d.creatina.times.forEach(t => parts.push('Creatina ' + t));
-      if (d.whey.active) d.whey.times.forEach(t => parts.push('Whey ' + t));
+      var parts = [];
+      if (d.creatina.active) d.creatina.times.forEach(function(t){ parts.push('Creatina '+t); });
+      if (d.whey.active)     d.whey.times.forEach(function(t){ parts.push('Whey '+t); });
       txt.textContent = 'Alarmes ativos: ' + parts.join(', ');
     } else {
       txt.textContent = 'Nenhum alarme ativo. Ative e adicione horários.';
@@ -3865,7 +3895,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   }
 
   function updatePermBanner() {
-    const b = document.getElementById('alarm-perm-banner');
+    var b = document.getElementById('alarm-perm-banner');
     if (!b) return;
     if (!('Notification' in window)) {
       b.className = 'alarm-perm-banner denied';
@@ -3877,10 +3907,11 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
       b.innerHTML = '<span>✅</span><span>Notificações permitidas. Os alarmes estão prontos!</span>';
     } else if (Notification.permission === 'denied') {
       b.className = 'alarm-perm-banner denied';
-      b.innerHTML = '<span>🚫</span><span>Notificações bloqueadas. Habilite nas configurações do navegador.</span>';
+      b.innerHTML = '<span>🚫</span><span>Notificações bloqueadas. Habilite nas configurações do celular.</span>';
     } else {
       b.className = 'alarm-perm-banner';
-      b.innerHTML = '<span>🔔</span><span>Permita notificações para receber os alarmes no celular.</span><button class="alarm-perm-btn" onclick="requestAlarmPermission()">Permitir</button>';
+      b.innerHTML = '<span>🔔</span><span>Permita notificações para receber os alarmes.</span>' +
+                    '<button class="alarm-perm-btn" onclick="requestAlarmPermission()">Permitir</button>';
     }
   }
 
@@ -3893,32 +3924,30 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   };
 
   window.openAlarmModal = function() {
-    const pwa = isPWA();
-    const gate = document.getElementById('alarm-pwa-gate');
-    const config = document.getElementById('alarm-config');
-    if (gate) gate.style.display = pwa ? 'none' : 'flex';
+    var pwa    = isPWA();
+    var gate   = document.getElementById('alarm-pwa-gate');
+    var config = document.getElementById('alarm-config');
+    if (gate)   gate.style.display   = pwa ? 'none' : 'flex';
     if (config) config.style.display = pwa ? 'flex' : 'none';
 
     if (!pwa) {
-      // Ajusta botão conforme plataforma
-      const btn = document.getElementById('pwa-install-btn');
-      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var btn   = document.getElementById('pwa-install-btn');
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
       if (btn) {
-        if (isIOS) btn.textContent = 'Ver como instalar no iPhone';
+        if (isIOS)            btn.textContent = 'Ver como instalar no iPhone';
         else if (_installPrompt) btn.textContent = 'Instalar na tela inicial';
-        else btn.textContent = 'Adicionar à tela inicial';
+        else                  btn.textContent = 'Adicionar à tela inicial';
       }
-      // Reseta instruções iOS
-      const steps = document.getElementById('pwa-ios-steps');
+      var steps = document.getElementById('pwa-ios-steps');
       if (steps) steps.style.display = 'none';
     } else {
-      const d = loadAlarms();
-      const tc = document.getElementById('alarm-creatina-toggle');
-      const tw = document.getElementById('alarm-whey-toggle');
+      var d  = loadAlarms();
+      var tc = document.getElementById('alarm-creatina-toggle');
+      var tw = document.getElementById('alarm-whey-toggle');
       if (tc) tc.checked = !!d.creatina.active;
       if (tw) tw.checked = !!d.whey.active;
-      renderTimes('creatina', d.creatina.times || []);
-      renderTimes('whey', d.whey.times || []);
+      renderTimes('creatina', d.creatina.times);
+      renderTimes('whey',     d.whey.times);
       updatePermBanner();
       updateStatus();
     }
@@ -3928,64 +3957,59 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
   document.getElementById('alarm-modal-close')?.addEventListener('click', function() {
     closeModal('alarm-modal-overlay');
   });
-
-  // Click-outside to close
   document.getElementById('alarm-modal-overlay')?.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'alarm-modal-overlay') closeModal('alarm-modal-overlay');
+    if (e && e.target && e.target.id === 'alarm-modal-overlay') closeModal('alarm-modal-overlay');
   });
 
-  /* Alarm checker — runs every 30s */
-  const _fired = new Set();
+  /* ---------- Alarm checker ---------- */
+
+  // FIX 3: intervalo de 10s (mais responsivo, dedup via localStorage impede duplo-disparo)
+  var SUPPS = [
+    { key:'creatina', title:'Creatina 💪',    body:'Hora de tomar sua creatina!', speech:'Tomar creatina', tag:'alarm-creatina' },
+    { key:'whey',     title:'Whey Protein 🥤', body:'Hora de tomar seu whey!',    speech:'Tomar Way',      tag:'alarm-whey' }
+  ];
 
   function checkAlarms() {
-    const d = loadAlarms();
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    const timeStr = hh + ':' + mm;
-    const day = now.toDateString();
-
-    const SUPPS = [
-      { key:'creatina', title:'Creatina 💪', body:'Hora de tomar sua creatina!', speech:'Tomar creatina' },
-      { key:'whey',     title:'Whey Protein 🥤', body:'Hora de tomar seu whey!',    speech:'Tomar Way' }
-    ];
+    var d   = loadAlarms();
+    var now = new Date();
+    var hh  = String(now.getHours()).padStart(2,'0');
+    var mm  = String(now.getMinutes()).padStart(2,'0');
+    var timeStr = hh + ':' + mm;
 
     SUPPS.forEach(function(s) {
-      const info = d[s.key];
+      var info = d[s.key];
       if (!info || !info.active || !info.times || !info.times.length) return;
       info.times.forEach(function(t) {
         if (t !== timeStr) return;
-        const k = day + '|' + s.key + '|' + t;
-        if (_fired.has(k)) return;
-        _fired.add(k);
-        fireAlarm(s.title, s.body, s.speech);
+        var k = new Date().toDateString() + '|' + s.key + '|' + t;
+        if (hasFired(k)) return;
+        markFired(k);
+        fireAlarm(s.title, s.body, s.speech, s.tag);
       });
-    });
-
-    // Prune old fired keys
-    _fired.forEach(function(k) {
-      if (!k.startsWith(day)) _fired.delete(k);
     });
   }
 
-  function fireAlarm(title, body, speechText) {
-    // Push notification via SW or direct
+  function fireAlarm(title, body, speechText, tag) {
+    // FIX 4: tag única por suplemento (creatina e whey não se sobrepõem)
+    // FIX 5: ícone do app incluído na notificação SW
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({ type:'SHOW_NOTIFICATION', title:title, body:body });
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_NOTIFICATION', title: title, body: body, tag: tag
+          });
         } else {
-          new Notification(title, { body:body, vibrate:[200,100,200], tag:'supplement-alarm' });
+          new Notification(title, { body: body, tag: tag, icon: './icon-192.png' });
         }
       } catch(e) {
-        try { new Notification(title, { body:body }); } catch(e2) {}
+        try { new Notification(title, { body: body }); } catch(e2) {}
       }
     }
 
-    // Speech synthesis (audio)
+    // Síntese de voz
     if ('speechSynthesis' in window) {
       try {
-        const u = new SpeechSynthesisUtterance(speechText);
+        var u = new SpeechSynthesisUtterance(speechText);
         u.lang = 'pt-BR'; u.rate = 0.85; u.pitch = 1.1; u.volume = 1;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(u);
@@ -3993,8 +4017,13 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     }
   }
 
-  setInterval(checkAlarms, 30000);
-  setTimeout(checkAlarms, 3000);
+  // Re-verifica ao app voltar ao primeiro plano (ex: usuário re-abre o PWA)
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) checkAlarms();
+  });
+
+  setInterval(checkAlarms, 10000);
+  setTimeout(checkAlarms, 2000);
 })();
 </script>
 <script src="chat-widget.js"></script>
