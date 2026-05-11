@@ -1,7 +1,9 @@
-const CACHE_NAME = 'studio-focus-v2';
+const CACHE_NAME = 'studio-focus-v3';
 // Arquivos que ficam em cache para uso offline
 const STATIC_ASSETS = [
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   './chat-widget.css',
   './chat-widget.js'
 ];
