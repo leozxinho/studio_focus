@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<title>Studio Focus - Academia em Garça, SP</title>
+<title>Studio Focus</title>
 <link rel="icon" href="./icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
@@ -41,8 +41,9 @@
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;background:var(--bg);overflow-x:hidden;height:auto!important;overflow-y:auto!important}
-body{background:var(--bg);color:var(--tx);font-family:var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-y:auto!important;height:auto!important;min-height:100vh;transition:background .3s,color .3s}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;background:var(--bg);overflow-x:hidden;height:auto;overflow-y:auto}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-y:auto;height:auto;min-height:100vh;transition:background .3s,color .3s}
+body.scroll-locked{overflow:hidden!important;position:fixed;width:100%;left:0}
 a{text-decoration:none;color:inherit}
 img{max-width:100%;height:auto}
 button{cursor:pointer;font-family:var(--fb)}
@@ -62,13 +63,13 @@ nav{
  background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
  border-bottom:1px solid var(--bd);transition:background .3s;
 }
-.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo{display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden}
 .nav-logo-svg{width:36px;height:36px;flex-shrink:0}
-.nav-brand{font-family:var(--ff);font-size:18px;letter-spacing:3px;line-height:1}
+.nav-brand{font-family:var(--ff);font-size:18px;letter-spacing:2px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-brand b{color:var(--pu2)}
 .nav-actions{display:flex;align-items:center;gap:8px}
 .theme-toggle{
- width:40px;height:40px;border-radius:50%;background:var(--s2);border:1px solid var(--bd2);
+ width:44px;height:44px;border-radius:50%;background:var(--s2);border:1px solid var(--bd2);
  display:flex;align-items:center;justify-content:center;font-size:18px;
  transition:background .2s;flex-shrink:0;
 }
@@ -103,7 +104,7 @@ nav{
  display:flex;align-items:center;justify-content:space-between;
  background:var(--s1);position:sticky;top:0;z-index:2;
 }
-.drawer-title{font-family:var(--ff);font-size:20px;letter-spacing:3px;color:var(--tx)}
+.drawer-title{font-family:var(--ff);font-size:20px;letter-spacing:2px;color:var(--tx)}
 .drawer-title span{color:var(--pu2)}
 .drawer-close{
  width:40px;height:40px;border-radius:50%;background:var(--s3);border:1.5px solid var(--bd2);
@@ -145,7 +146,7 @@ display:flex;flex-direction:column;gap:2px}
 
 /* HERO */
 .hero{
- min-height:var(--app-vh,100svh);padding:72px 16px 60px;
+ min-height:var(--app-vh,100svh);padding:clamp(48px,12vh,72px) 16px clamp(40px,8vh,60px);
  display:flex;flex-direction:column;justify-content:flex-end;
  position:relative;overflow:hidden;
 }
@@ -183,7 +184,7 @@ display:flex;flex-direction:column;gap:2px}
 .hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--pu2)}
 .hero-sub{
  margin-top:16px;font-size:15px;color:var(--mt);font-weight:300;
- line-height:1.65;max-width:340px;animation:fadeUp .7s .2s ease both;
+ line-height:1.65;max-width:min(340px,100%);animation:fadeUp .7s .2s ease both;
 }
 .hero-ctas{margin-top:28px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .7s .3s ease both}
 .btn-hero-main{
@@ -220,7 +221,7 @@ display:flex;flex-direction:column;gap:2px}
 
 /* SECTION COMMONS */
 .section{padding:56px 16px}
-.sec-label{font-size:10px;letter-spacing:3.5px;text-transform:uppercase;color:var(--pu2);margin-bottom:10px}
+.sec-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pu2);margin-bottom:10px}
 .sec-title{font-family:var(--ff);font-size:clamp(36px,10vw,64px);line-height:.97;margin-bottom:32px}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
@@ -245,33 +246,71 @@ display:flex;flex-direction:column;gap:2px}
  color:#fff;font-size:12px;font-weight:700;letter-spacing:.4px;
  border:none;white-space:nowrap;flex-shrink:0;
  box-shadow:0 4px 16px rgba(0,102,255,.4);
+ position:relative;overflow:hidden;
  transition:transform .2s cubic-bezier(.2,.8,.3,1),box-shadow .2s;
- animation:navPlanosIn .5s .15s cubic-bezier(.2,.8,.3,1) both;
+ animation:navPlanosIn .5s .15s cubic-bezier(.2,.8,.3,1) both,navPlanosPulse 2.8s 1s ease-in-out infinite;
 }
-.nav-planos-btn:hover{transform:scale(1.07);box-shadow:0 6px 24px rgba(0,102,255,.55)}
+.nav-planos-btn::before{
+ content:'';
+ position:absolute;inset:0;
+ background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);
+ transform:translateX(-100%);
+ animation:navPlanosShimmer 2.8s 1s ease-in-out infinite;
+}
+.nav-planos-btn:hover{transform:scale(1.07);box-shadow:0 8px 28px rgba(0,102,255,.65);animation:none}
+.nav-planos-btn:hover::before{animation:none}
 .nav-planos-btn:active{transform:scale(.96)}
 @keyframes navPlanosIn{
  from{opacity:0;transform:translateX(-16px) scale(.92)}
  to{opacity:1;transform:translateX(0) scale(1)}
 }
+@keyframes navPlanosPulse{
+ 0%,100%{box-shadow:0 4px 16px rgba(0,102,255,.4)}
+ 50%{box-shadow:0 4px 28px rgba(0,102,255,.75),0 0 0 4px rgba(0,102,255,.15)}
+}
+@keyframes navPlanosShimmer{
+ 0%,60%,100%{transform:translateX(-100%)}
+ 75%{transform:translateX(200%)}
+}
 @media(max-width:480px){.nav-planos-btn{display:none}}
+
+/* ── Responsive: telas pequenas ────────────────────────────────────── */
+@media(max-width:400px){
+ .nav-brand{font-size:15px;letter-spacing:1.5px}
+ .nav-logo-svg{width:28px;height:28px}
+ .nav-logo{gap:6px}
+ .hero h1{font-size:clamp(52px,16vw,80px)}
+ .section{padding:40px 14px}
+ .sec-title{font-size:clamp(30px,9vw,52px)}
+ .res-stat-val{font-size:16px}
+ .macro-kcal-num{font-size:36px}
+ .macro-action-row{flex-direction:column}
+ .sim-action-row{flex-direction:column}
+}
+@media(max-width:320px){
+ .nav-brand{letter-spacing:1px;font-size:14px}
+ .theme-toggle{width:38px;height:38px}
+ .hamburger{width:38px;height:38px}
+ .hero h1{font-size:52px}
+ .agua-schedule,.sim-scenarios{grid-template-columns:1fr 1fr}
+}
 
 /* PLANOS MODAL */
 .planos-modal-overlay{
  display:none;position:fixed;inset:0;z-index:500;
  background:rgba(0,0,0,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
- overflow-y:auto;padding:0;
+ overflow:hidden;padding:0;
  align-items:flex-start;justify-content:center;
 }
 .planos-modal-overlay.open{display:flex}
 .planos-modal{
  background:var(--bg);border:1px solid var(--bd2);
- width:100%;min-height:100vh;
+ width:100%;height:100svh;
  display:flex;flex-direction:column;
 }
 @media(min-width:600px){
- .planos-modal-overlay{padding:24px}
- .planos-modal{min-height:auto;border-radius:var(--rxl);max-width:740px;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+ .planos-modal-overlay{padding:24px;overflow-y:auto}
+ .planos-modal{height:auto;min-height:auto;max-height:calc(100svh - 48px);border-radius:var(--rxl);max-width:740px;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,.6)}
 }
 .planos-modal-header{
  display:flex;align-items:center;justify-content:space-between;
@@ -488,7 +527,7 @@ footer{
  display:flex;flex-direction:column;gap:16px;
  padding-bottom:max(28px,env(safe-area-inset-bottom));
 }
-.footer-brand{font-family:var(--ff);font-size:22px;letter-spacing:3px}
+.footer-brand{font-family:var(--ff);font-size:22px;letter-spacing:2px}
 .footer-brand b{color:var(--pu2)}
 .footer-info{font-size:12px;color:var(--mt);line-height:1.8}
 .footer-info a{color:var(--pu2)}
@@ -515,7 +554,8 @@ footer{
  background:var(--s1);border:1px solid var(--bd);
  border-radius:var(--rxl) var(--rxl) 0 0;
  width:100%;max-height:92svh;overflow-y:auto;
- padding:20px 16px 28px;display:flex;flex-direction:column;gap:18px;
+ padding:20px max(16px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+ display:flex;flex-direction:column;gap:18px;
  box-shadow:0 -8px 40px rgba(0,0,0,.5);
  animation:slideUp .35s cubic-bezier(.34,1.2,.64,1) both;
  -webkit-overflow-scrolling:touch;
@@ -599,7 +639,7 @@ footer{
 .glbl-txt{font-size:9px;font-weight:500;display:block;line-height:1.3;transition:color .4s}
 .res-msg{font-size:13px;color:var(--mt);line-height:1.65;font-weight:300}
 .res-stats-row{display:flex;gap:8px;flex-wrap:wrap}
-.res-stat{flex:1;min-width:80px;background:rgba(128,128,200,.07);border:1px solid var(--bd2);border-radius:10px;padding:11px 12px}
+.res-stat{flex:1;min-width:60px;background:rgba(128,128,200,.07);border:1px solid var(--bd2);border-radius:10px;padding:11px 10px}
 .res-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mt);margin-bottom:3px}
 .res-stat-val{font-family:var(--ff);font-size:20px;line-height:1}
 .res-stat-unit{font-size:10px;color:var(--mt)}
@@ -626,7 +666,7 @@ footer{
 /* Agua options */
 .agua-options{display:flex;gap:6px;flex-wrap:wrap}
 .agua-opt{
- flex:1;min-width:80px;padding:11px 8px;border-radius:var(--r);
+ flex:1;min-width:60px;padding:11px 6px;border-radius:var(--r);
  border:1.5px solid var(--bd2);background:var(--s2);color:var(--mt);
  font-family:var(--fb);font-size:12px;font-weight:500;min-height:46px;
  transition:all .2s;text-align:center;white-space:nowrap;
@@ -643,6 +683,7 @@ footer{
 .agua-copos{font-size:18px;font-weight:600;color:var(--tx)}
 .agua-copos small{font-size:12px;color:var(--mt);font-weight:300}
 .agua-schedule{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:360px){.agua-schedule{grid-template-columns:1fr 1fr}}
 .agua-period{background:var(--s2);border:1px solid var(--bd);border-radius:var(--rl);padding:12px 8px;text-align:center}
 .agua-period-icon{font-size:20px;margin-bottom:4px}
 .agua-period-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mt);margin-bottom:3px}
@@ -664,7 +705,7 @@ footer{
 /* Macro opts */
 .macro-opt-row{display:flex;gap:8px;flex-wrap:wrap}
 .macro-opt{
- flex:1;min-width:80px;padding:11px 8px;border-radius:var(--r);
+ flex:1;min-width:60px;padding:11px 6px;border-radius:var(--r);
  border:1.5px solid var(--bd2);background:var(--s2);color:var(--mt);
  font-family:var(--fb);font-size:12px;font-weight:500;
  text-align:center;white-space:nowrap;min-height:46px;
@@ -678,7 +719,7 @@ footer{
 /* Grid 3 cols inputs */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-@media(max-width:360px){.grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.grid-3{grid-template-columns:1fr 1fr}}
 
 /* Macro results */
 .macro-kcal-banner{
@@ -719,7 +760,7 @@ footer{
 
 /* Sim */
 .sim-opt-row{display:flex;gap:6px;flex-wrap:wrap}
-.sim-opt{flex:1;min-width:70px;padding:10px 8px;border-radius:var(--r);border:1.5px solid var(--bd2);background:var(--s2);color:var(--mt);font-family:var(--fb);font-size:12px;font-weight:500;text-align:center;white-space:nowrap;min-height:46px;transition:all .2s}
+.sim-opt{flex:1;min-width:55px;padding:10px 6px;border-radius:var(--r);border:1.5px solid var(--bd2);background:var(--s2);color:var(--mt);font-family:var(--fb);font-size:12px;font-weight:500;text-align:center;white-space:nowrap;min-height:46px;transition:all .2s}
 .sim-opt.active{border-color:var(--pu);background:var(--pu);color:#fff;font-weight:700}
 .sim-range-row{display:flex;flex-direction:column;gap:6px}
 .sim-range{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;background:var(--bd2);outline:none;cursor:pointer}
@@ -731,6 +772,7 @@ footer{
 .sim-hero-kcal{font-family:var(--ff);font-size:42px;line-height:1;color:var(--pu2)}
 .sim-hero-sub{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mt)}
 .sim-scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:360px){.sim-scenarios{grid-template-columns:1fr 1fr}}
 .sim-scenario{border-radius:var(--rl);padding:12px 8px;text-align:center;border:1px solid var(--bd);background:var(--s2);position:relative}
 .sim-scenario.highlight{border-color:var(--pu);background:var(--pu3)}
 .sim-scenario-badge{position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--pu);color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:99px;white-space:nowrap}
@@ -853,12 +895,12 @@ footer{
  .plans-aval-btn{width:auto}
 }
 
-/* TREINO MODAL */
+/* TREINO MODAL + PLANNING [COMENTADO] ====
 .treino-modal-overlay{
  display:none;position:fixed;inset:0;z-index:500;
  background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
  align-items:flex-start;justify-content:center;
- overflow-y:auto;padding:max(env(safe-area-inset-top),12px) 12px 40px;
+ overflow-y:auto;padding:max(env(safe-area-inset-top),12px) max(12px,env(safe-area-inset-right)) 40px max(12px,env(safe-area-inset-left));
 }
 @media(min-width:520px){.treino-modal-overlay{align-items:center;padding:24px}}
 .treino-modal-overlay.open{display:flex}
@@ -936,7 +978,6 @@ footer{
  grid-column:1/-1;text-align:center;padding:32px;color:var(--mt);font-size:14px;
 }
 
-/* PLANNING — botão + nos cards */
 .ex-add-btn{
  position:absolute;top:6px;left:6px;z-index:2;
  width:28px;height:28px;border-radius:50%;
@@ -952,7 +993,6 @@ footer{
  background:var(--pu);color:#fff;
 }
 
-/* DAY SELECTOR popup */
 .ex-day-selector{
  position:fixed;z-index:600;
  background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);
@@ -974,12 +1014,11 @@ footer{
 }
 .ex-day-cancel:hover{background:var(--s3)}
 
-/* PLANO SEMANAL MODAL */
 .plano-modal-overlay{
  display:none;position:fixed;inset:0;z-index:510;
  background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
  align-items:flex-start;justify-content:center;
- overflow-y:auto;padding:max(env(safe-area-inset-top),12px) 12px 40px;
+ overflow-y:auto;padding:max(env(safe-area-inset-top),12px) max(12px,env(safe-area-inset-right)) 40px max(12px,env(safe-area-inset-left));
 }
 @media(min-width:520px){.plano-modal-overlay{align-items:center;padding:24px}}
 .plano-modal-overlay.open{display:flex}
@@ -1041,6 +1080,7 @@ footer{
  color:#f87171;font-size:12px;font-weight:600;transition:background .2s;
 }
 .plano-clear-btn:hover{background:rgba(239,68,68,.1)}
+==== FIM TREINO + PLANNING [COMENTADO] */
 
 /* LUCIDE ICONS */
 .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -1081,7 +1121,7 @@ footer{
 .alarm-times{padding:10px 16px;display:flex;flex-direction:column;gap:8px}
 .alarm-time-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--s2);border:1px solid var(--bd)}
 .alarm-time-input{flex:1;background:transparent;border:none;outline:none;font-size:22px;font-family:var(--ff);letter-spacing:2px;color:var(--tx);cursor:pointer;min-width:0}
-.alarm-time-del{width:28px;height:28px;border-radius:50%;background:rgba(244,63,94,.12);border:none;color:#f43f5e;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .2s}
+.alarm-time-del{width:40px;height:40px;border-radius:50%;background:rgba(244,63,94,.12);border:none;color:#f43f5e;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .2s}
 .alarm-time-del:active{background:rgba(244,63,94,.3)}
 .alarm-add-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:var(--r);background:transparent;border:1.5px dashed var(--bd2);color:var(--mt);font-size:12px;font-weight:500;cursor:pointer;transition:border-color .2s,color .2s;width:100%}
 .alarm-add-btn:active{border-color:var(--pu2);color:var(--pu2)}
@@ -1149,15 +1189,7 @@ footer{
 <!-- NAV -->
 <nav id="main-nav">
  <div class="nav-logo">
- <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="nav-logo-svg" style="border-radius:50%;border:2px solid rgba(61,154,255,.5)">
- <circle cx="20" cy="20" r="20" fill="#1a0a4e"/>
- <rect x="8" y="18" width="24" height="5" rx="2.5" fill="#3d9aff"/>
- <rect x="6" y="11" width="7" height="18" rx="3" fill="#3d9aff"/>
- <rect x="27" y="11" width="7" height="18" rx="3" fill="#3d9aff"/>
- <rect x="9" y="14" width="5" height="12" rx="2" fill="#0066FF"/>
- <rect x="26" y="14" width="5" height="12" rx="2" fill="#0066FF"/>
- <rect x="17" y="17" width="6" height="7" rx="2" fill="#93c5fd"/>
- </svg>
+ <img src="./image.png" alt="Studio Focus" class="nav-logo-svg" style="border-radius:50%;border:2px solid rgba(61,154,255,.5)"/>
  <span class="nav-brand">STUDIO <b>FOCUS</b></span>
  </div>
  <div class="nav-actions">
@@ -1226,6 +1258,7 @@ footer{
  <div class="drawer-btn-sub">Notificações para creatina e whey</div>
  </div>
  </button>
+ <!--
  <div class="drawer-section-label" style="margin-top:8px">Treinos</div>
  <button class="drawer-btn" id="drawer-treino-btn" onclick="closeDrawer();openModal('treino-modal-overlay')">
  <div class="drawer-btn-icon"><span class="icon"><i data-lucide="dumbbell"></i></span></div>
@@ -1241,15 +1274,16 @@ footer{
  <div class="drawer-btn-sub">Exercícios organizados por dia da semana</div>
  </div>
  </button>
+ -->
  <div class="drawer-section-label" style="margin-top:8px">Academia</div>
- <button class="drawer-btn" onclick="document.getElementById('diferenciais').scrollIntoView({behavior:'smooth'});closeDrawer()">
+ <button class="drawer-btn" onclick="closeDrawer();setTimeout(()=>document.getElementById('diferenciais').scrollIntoView({behavior:'smooth'}),50)">
  <div class="drawer-btn-icon"><span class="icon"><i data-lucide="star"></i></span></div>
  <div class="drawer-btn-txt">
  <div class="drawer-btn-name">Diferenciais</div>
  <div class="drawer-btn-sub">Por que escolher o Studio Focus?</div>
  </div>
  </button>
- <button class="drawer-btn" onclick="document.getElementById('localizacao').scrollIntoView({behavior:'smooth'});closeDrawer()">
+ <button class="drawer-btn" onclick="closeDrawer();setTimeout(()=>document.getElementById('localizacao').scrollIntoView({behavior:'smooth'}),50)">
  <div class="drawer-btn-icon"><span class="icon"><i data-lucide="map-pin"></i></span></div>
  <div class="drawer-btn-txt">
  <div class="drawer-btn-name">Localização</div>
@@ -1266,7 +1300,7 @@ footer{
  <a href="https://wa.me/5514982180923?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Studio%20Focus!" style="color:var(--gr2);font-weight:600" target="_blank" rel="noopener">WhatsApp agora</a> &nbsp;|&nbsp; 4.8 no Google Maps
  </div>
  <div style="text-align:center;font-size:10px;color:var(--mt);padding:4px 0 2px;letter-spacing:1px">
-  v1.6 · 2026-05-11
+  v1.1 · 2026-05-11
  </div>
  </div>
 </aside>
@@ -1829,7 +1863,7 @@ footer{
  </div>
 </div>
 
-<!-- Modal Plano Semanal -->
+<!--
 <div class="plano-modal-overlay" id="plano-modal-overlay">
  <div class="plano-modal">
   <div class="plano-modal-header">
@@ -1839,6 +1873,7 @@ footer{
   <div id="plano-content"></div>
  </div>
 </div>
+-->
 
 <!-- Modal Alarme de Suplementos -->
 <div class="alarm-modal-overlay" id="alarm-modal-overlay">
@@ -1916,7 +1951,7 @@ footer{
  </div>
 </div>
 
-<!-- Modal Monte seu Treino -->
+<!--
 <div class="treino-modal-overlay" id="treino-modal-overlay">
  <div class="treino-modal">
   <div class="treino-modal-header">
@@ -1935,7 +1970,6 @@ footer{
   </div>
   <div class="treino-cards" id="treino-cards">
 
-   <!-- ===== COSTAS ===== -->
    <div class="ex-card" data-grupo="costas">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
@@ -1992,7 +2026,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== PEITO ===== -->
    <div class="ex-card" data-grupo="peito">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -2049,7 +2082,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== PERNAS ===== -->
    <div class="ex-card" data-grupo="pernas">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M12 2v10M8 6l4-4 4 4M7 22l5-10 5 10"/></svg>
@@ -2106,7 +2138,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== OMBROS ===== -->
    <div class="ex-card" data-grupo="ombros">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7M4 19h16"/></svg>
@@ -2163,7 +2194,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== BÍCEPS ===== -->
    <div class="ex-card" data-grupo="biceps">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M6 18c0-4 2-8 6-8s6 4 6 8M12 10V6M9 6h6"/></svg>
@@ -2220,7 +2250,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== TRÍCEPS ===== -->
    <div class="ex-card" data-grupo="triceps">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><path d="M12 6v12M8 10l4-4 4 4M7 18h10"/></svg>
@@ -2277,7 +2306,6 @@ footer{
     </div>
    </div>
 
-   <!-- ===== ABS ===== -->
    <div class="ex-card" data-grupo="abs">
     <div class="ex-card-visual">
      <svg class="ex-card-icon" viewBox="0 0 24 24"><rect x="8" y="4" width="8" height="4" rx="1"/><rect x="8" y="10" width="8" height="4" rx="1"/><rect x="8" y="16" width="8" height="4" rx="1"/></svg>
@@ -2337,6 +2365,7 @@ footer{
   </div>
  </div>
 </div>
+-->
 
 <!-- FOOTER -->
 <footer>
@@ -2418,14 +2447,27 @@ setTimeout(()=>document.querySelectorAll('.reveal:not(.visible)').forEach(el=>el
 const hamburger=document.getElementById('hamburger')
 const drawer=document.getElementById('drawer')
 const drawerOverlay=document.getElementById('drawer-overlay')
-function openDrawer(){drawer.classList.add('open');drawerOverlay.classList.add('open');hamburger.classList.add('open');document.body.style.overflow='hidden'}
-function closeDrawer(){drawer.classList.remove('open');drawerOverlay.classList.remove('open');hamburger.classList.remove('open');document.body.style.overflow=''}
+function openDrawer(){
+ const sy=window.scrollY;
+ document.body.style.top='-'+sy+'px';
+ document.body.classList.add('scroll-locked');
+ drawer.classList.add('open');drawerOverlay.classList.add('open');hamburger.classList.add('open');
+}
+function closeDrawer(){
+ const sy=parseFloat(document.body.style.top||'0')*-1;
+ document.body.classList.remove('scroll-locked');
+ document.body.style.top='';
+ window.scrollTo({top:sy,behavior:'instant'});
+ drawer.classList.remove('open');drawerOverlay.classList.remove('open');hamburger.classList.remove('open');
+}
 if(hamburger)hamburger.addEventListener('click',()=>drawer.classList.contains('open')?closeDrawer():openDrawer())
 if(drawerOverlay)drawerOverlay.addEventListener('click',closeDrawer)
 const elDC=document.getElementById('drawer-close');if(elDC)elDC.addEventListener('click',closeDrawer)
 
 /* PLANOS MODAL */
 function openPlanosModal(){
+ const overlay=document.getElementById('planos-modal-overlay')
+ if(overlay){overlay.scrollTop=0;const body=overlay.querySelector('.planos-modal-body');if(body)body.scrollTop=0}
  openModal('planos-modal-overlay')
  setTimeout(()=>{
   document.querySelectorAll('#planos-modal-overlay .reveal').forEach(el=>el.classList.add('visible'))
@@ -2475,6 +2517,7 @@ document.getElementById('macro-modal-close')?.addEventListener('click',()=>close
 document.getElementById('sim-modal-close')?.addEventListener('click',()=>closeModal('sim-modal-overlay'))
 document.getElementById('drawer-rm-btn')?.addEventListener('click',()=>{closeDrawer();openModal('rm-modal-overlay')})
 document.getElementById('rm-modal-close')?.addEventListener('click',()=>closeModal('rm-modal-overlay'))
+/*
 document.getElementById('drawer-treino-btn')?.addEventListener('click',()=>{closeDrawer();openModal('treino-modal-overlay')})
 document.getElementById('treino-modal-close')?.addEventListener('click',()=>closeModal('treino-modal-overlay'))
 // Treino filter tabs
@@ -2499,9 +2542,10 @@ document.getElementById('treino-modal-close')?.addEventListener('click',()=>clos
   }else{if(empty)empty.remove();}
  });
 })();
+*/
 
 
-// ===== SISTEMA DE PLANEJAMENTO SEMANAL =====
+/* ===== SISTEMA DE PLANEJAMENTO SEMANAL [COMENTADO] =====
 ;(function(){
  var PLAN_KEY='sf-weekly-plan';
  var DIAS=['seg','ter','qua','qui','sex','sab'];
@@ -2688,6 +2732,7 @@ document.getElementById('treino-modal-close')?.addEventListener('click',()=>clos
 
  document.getElementById('plano-modal-close')?.addEventListener('click',function(){closeModal('plano-modal-overlay');});
 })();
+===== FIM SISTEMA DE PLANEJAMENTO SEMANAL [COMENTADO] ===== */
 
 // Input Validation
 document.addEventListener('input', function(e) {
@@ -3667,6 +3712,7 @@ const TUT_STEPS=[
   title:'Alarme de Suplementos',
   desc:'Configure horários para receber notificações no celular lembrando de tomar creatina e whey. Requer instalação como app.',
   pos:'right',keepDrawer:true},
+ /* TREINO [COMENTADO]
  {targetId:'drawer-treino-btn',
   title:'Monte seu Treino',
   desc:'Biblioteca completa de exercícios com técnica, grupos musculares, variações e séries recomendadas.',
@@ -3675,6 +3721,7 @@ const TUT_STEPS=[
   title:'Meu Treino Semanal',
   desc:'Visualize seu treino organizado por dia da semana — segunda a sábado — pronto para seguir na academia.',
   pos:'right',keepDrawer:true},
+ */
  {targetId:'nav-planos-btn',
   title:'Veja Nossos Planos',
   desc:'Conheça os planos do Studio Focus e comece sua transformação com acompanhamento profissional!',
@@ -3778,12 +3825,22 @@ if ('serviceWorker' in navigator) {
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;
         newSW.addEventListener('statechange', () => {
-          // Novo SW instalado e pronto — avisa o usuário
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
             showUpdateBanner();
           }
         });
       });
+
+      // Periodic Background Sync: acorda o SW periodicamente (Chrome/Android)
+      if ('periodicSync' in reg) {
+        navigator.permissions.query({ name: 'periodic-background-sync' })
+          .then(status => {
+            if (status.state === 'granted') {
+              reg.periodicSync.register('check-alarms', { minInterval: 60 * 1000 })
+                .catch(() => {});
+            }
+          }).catch(() => {});
+      }
     }).catch(err => console.log('SW falhou: ', err));
   });
 }
@@ -4110,17 +4167,63 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     }).catch(function() {});
   }
 
+  // ── Web Push: inscreve no servidor e sincroniza alarmes ─────────────────
+  function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var raw = window.atob(base64);
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function buildAlarmList() {
+    var d = loadAlarms(); var alarms = [];
+    SUPPS.forEach(function(s) {
+      var info = d[s.key];
+      if (!info || !info.active || !info.times || !info.times.length) return;
+      info.times.forEach(function(t) {
+        alarms.push({ time: t, title: s.title, body: s.body, tag: s.tag });
+      });
+    });
+    return alarms;
+  }
+
+  async function syncPushSubscription() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    try {
+      var vapidRes = await fetch('/api/push-vapid');
+      if (!vapidRes.ok) return;
+      var { publicKey } = await vapidRes.json();
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+      var alarms = buildAlarmList();
+      await fetch('/api/push-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub.toJSON(), alarms: alarms })
+      });
+    } catch(e) { console.warn('Web Push sync:', e); }
+  }
+
   // Sincroniza ao salvar, adicionar ou remover horários
   var _origSave          = window.saveAlarms;
   var _origAdd           = window.addAlarmTime;
   var _origRemove        = window.removeAlarmTime;
-  window.saveAlarms      = function()      { _origSave();          syncAlarmsToSW(); };
-  window.addAlarmTime    = function(s)     { _origAdd(s);          syncAlarmsToSW(); };
-  window.removeAlarmTime = function(s, i)  { _origRemove(s, i);    syncAlarmsToSW(); };
+  window.saveAlarms      = function()      { _origSave();          syncAlarmsToSW(); syncPushSubscription(); };
+  window.addAlarmTime    = function(s)     { _origAdd(s);          syncAlarmsToSW(); syncPushSubscription(); };
+  window.removeAlarmTime = function(s, i)  { _origRemove(s, i);    syncAlarmsToSW(); syncPushSubscription(); };
 
   // Sincroniza assim que o SW estiver pronto no carregamento da página
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(function() { syncAlarmsToSW(); }).catch(function() {});
+    navigator.serviceWorker.ready.then(function() {
+      syncAlarmsToSW();
+      syncPushSubscription();
+    }).catch(function() {});
   }
 
   // Re-verifica ao app voltar ao primeiro plano (ex: usuário re-abre o PWA)

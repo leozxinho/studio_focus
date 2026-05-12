@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "ioredis": "^5.10.1",
+    "web-push": "^3.6.7"
+  }
 }

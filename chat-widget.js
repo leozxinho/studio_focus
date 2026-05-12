@@ -191,7 +191,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                     <div id="focus-ia-chips">
                         <div class="focus-chip">Como ganhar massa muscular?</div>
                         <div class="focus-chip">Dieta para emagrecer</div>
-                        <div class="focus-chip">Treino para iniciantes</div>
+                        <!-- <div class="focus-chip">Treino para iniciantes</div> -->
                         <div class="focus-chip">Quantas proteínas devo comer?</div>
                     </div>
                 </div>
@@ -453,20 +453,23 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                 if (onComplete) onComplete();
                 return;
             }
-            if (html[i] === '<') {
-                const end = html.indexOf('>', i);
-                if (end !== -1) {
-                    displayed += html.slice(i, end + 1);
-                    i = end + 1;
-                    msgDiv.innerHTML = displayed;
-                    step();
-                    return;
+            // processa até 8 caracteres por tick para resposta mais rápida
+            let charsThisTick = 0;
+            while (i < html.length && charsThisTick < 8) {
+                if (html[i] === '<') {
+                    const end = html.indexOf('>', i);
+                    if (end !== -1) {
+                        displayed += html.slice(i, end + 1);
+                        i = end + 1;
+                        continue;
+                    }
                 }
+                displayed += html[i++];
+                charsThisTick++;
             }
-            displayed += html[i++];
             msgDiv.innerHTML = displayed;
             scrollToBottom();
-            setTimeout(step, 18);
+            setTimeout(step, 10);
         }
 
         step();
