@@ -28,12 +28,16 @@ export default async function handler(req, res) {
   }
 
   // Horário em Brasília (UTC-3)
-  const timeStr = new Intl.DateTimeFormat('pt-BR', {
+  const now = new Date();
+  const options = {
     timeZone: 'America/Sao_Paulo',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(new Date()).replace('h', ':').trim();
+  };
+  const timeStr = new Intl.DateTimeFormat('pt-BR', options).format(now).replace('h', ':').trim();
+  
+  console.log(`[push-check] Checking alarms for ${timeStr} (Brasília)`);
 
   const r = getRedis();
   const keys = await r.keys('sub:*');

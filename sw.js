@@ -192,6 +192,7 @@ self.addEventListener('message', (event) => {
 
 // ── Push do servidor (Web Push API) ─────────────────────────────────────────
 self.addEventListener('push', (event) => {
+  console.log('[SW] Push recebido:', event.data ? event.data.text() : 'sem dados');
   let data = { title: 'Studio Focus', body: 'Lembrete de suplemento!', tag: 'alarm', icon: './icon-192.png' };
   try { data = { ...data, ...event.data.json() }; } catch(e) {}
 
