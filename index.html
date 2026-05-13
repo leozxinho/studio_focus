@@ -8,6 +8,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignal.plugin.js" async=""></script>
+<script>
+  window.OneSignal = window.OneSignal || [];
+  OneSignal.push(function() {
+    OneSignal.init({
+      appId: "SEU-APP-ID-AQUI", // ← SUBSTITUA PELO SEU APP ID DO ONESIGNAL
+      safari_web_id: "web.onesignal.auto.60155b9a-4c22-4a0b-967a-xxxxxxxxxxxx", // (opcional)
+      notifyButton: { enable: false },
+    });
+  });
+</script>
 <title>Studio Focus</title>
 <link rel="icon" href="./icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -4168,15 +4179,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     }).catch(function() {});
   }
 
-  // ── Web Push: inscreve no servidor e sincroniza alarmes ─────────────────
-  function urlBase64ToUint8Array(base64String) {
-    var padding = '='.repeat((4 - base64String.length % 4) % 4);
-    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    var raw = window.atob(base64);
-    var out = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
-    return out;
-  }
+
 
   function buildAlarmList() {
     var d = loadAlarms(); var alarms = [];
@@ -4214,56 +4217,54 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
 
   var _pushSyncRetries = 0;
   async function syncPushSubscription() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      updatePushStatus('off', 'Push não suportado neste navegador.');
+    if (!window.OneSignal) {
+      updatePushStatus('off', 'OneSignal não carregado.');
       return;
     }
+
     if (Notification.permission !== 'granted') {
-      updatePushStatus('off', 'Notificações não permitidas. Ative para receber alarmes com app fechado.');
+      updatePushStatus('off', 'Notificações não permitidas. Ative para receber alarmes.');
       return;
     }
 
     var alarms = buildAlarmList();
     if (!alarms.length) {
-      updatePushStatus('off', 'Nenhum alarme ativo para sincronizar.');
+      updatePushStatus('off', 'Nenhum alarme ativo.');
+      // Remove tags antigas se não houver alarmes
+      OneSignal.push(function() {
+        OneSignal.getTags().then(function(tags) {
+          var toRemove = Object.keys(tags).filter(t => t.startsWith('alarm_'));
+          if (toRemove.length) OneSignal.deleteTags(toRemove);
+        });
+      });
       return;
     }
 
-    updatePushStatus('syncing', 'Sincronizando alarmes com o servidor...');
+    updatePushStatus('syncing', 'Sincronizando com OneSignal...');
 
     try {
-      var vapidRes = await fetch('/api/push-vapid');
-      if (!vapidRes.ok) throw new Error('VAPID indisponível (' + vapidRes.status + ')');
-      var vapidData = await vapidRes.json();
-      var publicKey = vapidData.publicKey;
-      if (!publicKey) throw new Error('VAPID key vazia');
+      OneSignal.push(function() {
+        // Converte horários em tags para o OneSignal (ex: alarm_0800: "1")
+        var tags = {};
+        alarms.forEach(function(a) {
+          var tagKey = 'alarm_' + a.time.replace(':', '');
+          tags[tagKey] = "1";
+        });
 
-      var reg = await navigator.serviceWorker.ready;
-      var sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey)
+        // Primeiro limpa as tags antigas de alarme
+        OneSignal.getTags().then(function(currentTags) {
+          var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_') && !tags[t]);
+          if (toRemove.length) OneSignal.deleteTags(toRemove);
+          
+          // Define as novas tags
+          OneSignal.sendTags(tags).then(function() {
+            updatePushStatus('ok', alarms.length + ' alarme(s) sincronizado(s) via OneSignal!');
+          });
+        });
       });
-
-      var subRes = await fetch('/api/push-subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub.toJSON(), alarms: alarms })
-      });
-
-      if (!subRes.ok) throw new Error('Servidor retornou ' + subRes.status);
-
-      _pushSyncRetries = 0;
-      updatePushStatus('ok', alarms.length + ' alarme(s) sincronizado(s). Funcionam com app fechado!');
-      console.log('[Alarm] Push sync OK:', alarms.length, 'alarmes');
     } catch(e) {
-      console.warn('[Alarm] Push sync erro:', e);
-      _pushSyncRetries++;
-      if (_pushSyncRetries <= 2) {
-        updatePushStatus('error', 'Erro ao sincronizar. Tentando novamente...');
-        setTimeout(function() { syncPushSubscription(); }, 3000 * _pushSyncRetries);
-      } else {
-        updatePushStatus('error', 'Não foi possível sincronizar. Alarmes funcionam apenas com app aberto. Verifique sua conexão.');
-      }
+      console.warn('[Alarm] OneSignal sync erro:', e);
+      updatePushStatus('error', 'Erro ao sincronizar com OneSignal.');
     }
   }
 

@@ -8,7 +8,7 @@
     const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
     const API_ENDPOINT = isLocal
         ? "/focus-bridge.php"
-        : "https://studiofocus.app.br/api/chat";
+        : "https://studio-focus-chat.seu-usuario.workers.dev"; // ← SUBSTITUA PELA SUA URL DO CLOUDFLARE
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP.
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física.
 Seja direto e motivador como um personal trainer experiente.
