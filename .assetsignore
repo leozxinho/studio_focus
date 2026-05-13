@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.vercel/
+.env*
+package.json
+package-lock.json
+wrangler.jsonc
+*.py
+tests/
+api/
+docs/
+scratch/
+README.md
+CRON_SETUP.md
+bugs.md
+txt.txt
