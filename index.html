@@ -8,15 +8,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignal.plugin.js" async=""></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
-  window.OneSignal = window.OneSignal || [];
-  OneSignal.push(function() {
-    OneSignal.init({
-      appId: "SEU-APP-ID-AQUI", // ← SUBSTITUA PELO SEU APP ID DO ONESIGNAL
-      safari_web_id: "web.onesignal.auto.60155b9a-4c22-4a0b-967a-xxxxxxxxxxxx", // (opcional)
-      notifyButton: { enable: false },
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "215ca90b-5f40-4721-b192-975001757f51",
     });
+    // Torna o objeto OneSignal global para as outras funções
+    window.OneSignal = OneSignal;
   });
 </script>
 <title>Studio Focus</title>
@@ -4232,10 +4232,9 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
       updatePushStatus('off', 'Nenhum alarme ativo.');
       // Remove tags antigas se não houver alarmes
       OneSignal.push(function() {
-        OneSignal.getTags().then(function(tags) {
-          var toRemove = Object.keys(tags).filter(t => t.startsWith('alarm_'));
-          if (toRemove.length) OneSignal.deleteTags(toRemove);
-        });
+        var currentTags = OneSignal.User.getTags();
+        var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_'));
+        if (toRemove.length) OneSignal.User.removeTags(toRemove);
       });
       return;
     }
@@ -4251,16 +4250,13 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
           tags[tagKey] = "1";
         });
 
-        // Primeiro limpa as tags antigas de alarme
-        OneSignal.getTags().then(function(currentTags) {
-          var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_') && !tags[t]);
-          if (toRemove.length) OneSignal.deleteTags(toRemove);
-          
-          // Define as novas tags
-          OneSignal.sendTags(tags).then(function() {
-            updatePushStatus('ok', alarms.length + ' alarme(s) sincronizado(s) via OneSignal!');
-          });
-        });
+        // Limpa e define as novas tags usando a API v16 (OneSignal.User)
+        var currentTags = OneSignal.User.getTags();
+        var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_') && !tags[t]);
+        if (toRemove.length) OneSignal.User.removeTags(toRemove);
+        
+        OneSignal.User.addTags(tags);
+        updatePushStatus('ok', alarms.length + ' alarme(s) sincronizado(s) via OneSignal!');
       });
     } catch(e) {
       console.warn('[Alarm] OneSignal sync erro:', e);
