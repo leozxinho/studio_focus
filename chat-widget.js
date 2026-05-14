@@ -3,12 +3,12 @@
 (function () {
     // --- Constants & Config ---
     const STORAGE_KEY = "focus-ia-conversas";
-    const CACHE_KEY   = "focus-ia-cache";
-    const SOUND_KEY   = "focus-ia-sound";
+    const CACHE_KEY = "focus-ia-cache";
+    const SOUND_KEY = "focus-ia-sound";
     const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
     const API_ENDPOINT = isLocal
         ? "/focus-bridge.php"
-        : "https://studiofocus.app.br/api/chat";
+        : "https://chat-ia.the130programacion.workers.dev";
     const SYSTEM_PROMPT = `Você é o Focus IA, assistente virtual da academia Studio Focus em Garça, SP.
 Responda APENAS perguntas sobre treino, musculação, nutrição esportiva, emagrecimento, ganho de massa e saúde física.
 Seja direto e motivador como um personal trainer experiente.
@@ -24,10 +24,10 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     // --- State ---
     let state = { conversas: [], conversa_ativa: null };
-    let isTyping      = false;
-    let soundEnabled  = localStorage.getItem(SOUND_KEY) !== 'false';
+    let isTyping = false;
+    let soundEnabled = localStorage.getItem(SOUND_KEY) !== 'false';
     let lastUserMessage = null;
-    let audioCtx      = null;
+    let audioCtx = null;
 
     // --- Audio ---
     function getAudioCtx() {
@@ -38,8 +38,8 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     function playSound(type) {
         if (!soundEnabled) return;
         try {
-            const ctx  = getAudioCtx();
-            const osc  = ctx.createOscillator();
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
@@ -57,7 +57,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                 osc.start(ctx.currentTime);
                 osc.stop(ctx.currentTime + 0.2);
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // --- Cache ---
@@ -66,7 +66,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     }
     function setCache(question, answer) {
         const cache = getCache();
-        const keys  = Object.keys(cache);
+        const keys = Object.keys(cache);
         if (keys.length >= 50) delete cache[keys[0]];
         cache[question.toLowerCase().trim()] = answer;
         localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
@@ -223,15 +223,15 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     }
 
     function setupEventListeners() {
-        document.getElementById('focus-ia-launcher').onclick    = toggleWindow;
-        document.getElementById('focus-ia-close-btn').onclick   = toggleWindow;
+        document.getElementById('focus-ia-launcher').onclick = toggleWindow;
+        document.getElementById('focus-ia-close-btn').onclick = toggleWindow;
         document.getElementById('focus-ia-history-btn').onclick = showHistoryPanel;
-        document.getElementById('focus-ia-back-btn').onclick    = hideHistoryPanel;
-        document.getElementById('focus-ia-new-btn').onclick     = () => { createNewConversation(); hideHistoryPanel(); };
-        document.getElementById('focus-ia-send').onclick        = sendMessage;
-        document.getElementById('focus-ia-pdf-btn').onclick     = generatePDF;
-        document.getElementById('focus-ia-sound-btn').onclick   = toggleSound;
-        document.getElementById('focus-ia-scroll-btn').onclick  = scrollToBottom;
+        document.getElementById('focus-ia-back-btn').onclick = hideHistoryPanel;
+        document.getElementById('focus-ia-new-btn').onclick = () => { createNewConversation(); hideHistoryPanel(); };
+        document.getElementById('focus-ia-send').onclick = sendMessage;
+        document.getElementById('focus-ia-pdf-btn').onclick = generatePDF;
+        document.getElementById('focus-ia-sound-btn').onclick = toggleSound;
+        document.getElementById('focus-ia-scroll-btn').onclick = scrollToBottom;
 
         const input = document.getElementById('focus-ia-input');
         input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
@@ -245,7 +245,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     // --- Window Toggle ---
     function toggleWindow() {
-        const win     = document.getElementById('focus-ia-window');
+        const win = document.getElementById('focus-ia-window');
         const tooltip = document.getElementById('focus-ia-tooltip');
         win.classList.toggle('active');
         if (win.classList.contains('active')) {
@@ -286,7 +286,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     function updateScrollBtn() {
         const msgs = document.getElementById('focus-ia-messages');
-        const btn  = document.getElementById('focus-ia-scroll-btn');
+        const btn = document.getElementById('focus-ia-scroll-btn');
         if (!btn) return;
         const nearBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80;
         btn.classList.toggle('visible', !nearBottom);
@@ -301,7 +301,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     // --- Render ---
     function renderActiveConversation() {
-        const conv      = state.conversas.find(c => c.id === state.conversa_ativa);
+        const conv = state.conversas.find(c => c.id === state.conversa_ativa);
         const container = document.getElementById('focus-ia-messages');
         container.innerHTML = '';
         if (conv) {
@@ -317,10 +317,10 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         const comInteracao = state.conversas.filter(c => c.messages.some(m => m.role === 'user'));
         [...comInteracao].reverse().forEach(conv => {
             const date = new Date(conv.data);
-            const fmt  = `${date.getDate().toString().padStart(2,'0')}/${(date.getMonth()+1).toString().padStart(2,'0')} às ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
+            const fmt = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
             const item = document.createElement('div');
             item.className = `history-item ${conv.id === state.conversa_ativa ? 'active' : ''}`;
-            item.onclick   = () => setActiveConversation(conv.id);
+            item.onclick = () => setActiveConversation(conv.id);
             item.innerHTML = `
                 <div class="history-item-content">
                     <div class="history-item-title">${conv.titulo}</div>
@@ -339,7 +339,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                 confirm.innerHTML = `<span>Excluir?</span><button class="history-confirm-yes">Sim</button><button class="history-confirm-no">Não</button>`;
                 item.appendChild(confirm);
                 confirm.querySelector('.history-confirm-yes').onclick = (e) => { e.stopPropagation(); deleteConversation(conv.id); };
-                confirm.querySelector('.history-confirm-no').onclick  = (e) => { e.stopPropagation(); confirm.remove(); delBtn.style.display = ''; };
+                confirm.querySelector('.history-confirm-no').onclick = (e) => { e.stopPropagation(); confirm.remove(); delBtn.style.display = ''; };
             };
             list.appendChild(item);
         });
@@ -352,9 +352,9 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     function formatContent(content) {
         const lines = content.split('\n');
-        let html  = '';
-        let inUl  = false;
-        let inOl  = false;
+        let html = '';
+        let inUl = false;
+        let inOl = false;
 
         for (const line of lines) {
             const ulMatch = line.match(/^[\s]*[-*•]\s+(.+)$/);
@@ -385,7 +385,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     function addCopyButton(msgDiv, rawContent) {
         const btn = document.createElement('button');
         btn.className = 'focus-msg-copy';
-        const iconCopy  = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+        const iconCopy = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
         const iconCheck = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         btn.innerHTML = `${iconCopy} Copiar`;
         btn.onclick = () => {
@@ -396,14 +396,14 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                     btn.classList.remove('copied');
                     btn.innerHTML = `${iconCopy} Copiar`;
                 }, 2000);
-            }).catch(() => {});
+            }).catch(() => { });
         };
         msgDiv.appendChild(btn);
     }
 
     function addMessageToUI(role, content) {
         const container = document.getElementById('focus-ia-messages');
-        const msgDiv    = document.createElement('div');
+        const msgDiv = document.createElement('div');
         msgDiv.className = `focus-msg ${role === 'user' ? 'user' : 'ia'}`;
         msgDiv.innerHTML = formatContent(content);
         if (role !== 'user') addCopyButton(msgDiv, content);
@@ -414,14 +414,14 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         const btn = document.getElementById('focus-ia-send');
         if (active) {
             btn.classList.add('stop-mode');
-            btn.innerHTML  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
-            btn.onclick    = stopTyping;
-            btn.disabled   = false;
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
+            btn.onclick = stopTyping;
+            btn.disabled = false;
         } else {
             btn.classList.remove('stop-mode');
-            btn.innerHTML  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-            btn.onclick    = sendMessage;
-            btn.disabled   = false;
+            btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+            btn.onclick = sendMessage;
+            btn.disabled = false;
         }
     }
 
@@ -429,7 +429,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     function typeMessageToUI(content, onComplete) {
         const container = document.getElementById('focus-ia-messages');
-        const msgDiv    = document.createElement('div');
+        const msgDiv = document.createElement('div');
         msgDiv.className = 'focus-msg ia';
         container.appendChild(msgDiv);
 
@@ -478,7 +478,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     function showTyping() {
         const container = document.getElementById('focus-ia-messages');
         const typingDiv = document.createElement('div');
-        typingDiv.id        = 'focus-ia-typing';
+        typingDiv.id = 'focus-ia-typing';
         typingDiv.className = 'focus-typing';
         typingDiv.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:4px;">
@@ -503,7 +503,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
     function showErrorWithRetry(message, onRetry) {
         const container = document.getElementById('focus-ia-messages');
-        const errDiv    = document.createElement('div');
+        const errDiv = document.createElement('div');
         errDiv.className = 'focus-msg ia';
         errDiv.innerHTML = `${message}<br><button class="focus-retry-btn">↩ Tentar novamente</button>`;
         errDiv.querySelector('.focus-retry-btn').onclick = () => { errDiv.remove(); onRetry(); };
@@ -521,7 +521,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     // --- API Logic ---
     async function callGemini(messages) {
         const controller = new AbortController();
-        const timeoutId  = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         let response;
         try {
             if (isLocal) {
@@ -549,9 +549,9 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
 
         const data = await response.json();
         if (data.error) {
-            const err   = new Error(data.error.message || "Erro na API");
-            err.code    = data.error.code;
-            err.status  = data.error.status;
+            const err = new Error(data.error.message || "Erro na API");
+            err.code = data.error.code;
+            err.status = data.error.status;
             throw err;
         }
         if (data.candidates?.[0]?.content) {
@@ -594,7 +594,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
     async function sendMessage() {
         if (isTyping) return;
         const input = document.getElementById('focus-ia-input');
-        const text  = input.value.trim();
+        const text = input.value.trim();
         if (!text) return;
 
         input.value = '';
@@ -640,7 +640,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
                 role: msg.role === "assistant" ? "model" : "user",
                 parts: [{ text: msg.content }]
             }));
-            const aiMsg   = await callGemini(geminiContents);
+            const aiMsg = await callGemini(geminiContents);
             const elapsed = Date.now() - startTime;
             setConnectionStatus(elapsed > 4000 ? 'slow' : 'online');
             setCache(text, aiMsg);
@@ -670,9 +670,9 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         const conv = state.conversas.find(c => c.id === state.conversa_ativa);
         if (!conv) return;
 
-        const doc          = new jsPDF();
-        const date         = new Date();
-        const timestamp    = `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}`;
+        const doc = new jsPDF();
+        const date = new Date();
+        const timestamp = `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}`;
         const primaryColor = [0, 102, 255];
 
         doc.setFillColor(...primaryColor);
@@ -688,8 +688,8 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         doc.text(timestamp, 190, 30, { align: 'right' });
 
         let y = 55;
-        const margin       = 20;
-        const pageWidth    = 210;
+        const margin = 20;
+        const pageWidth = 210;
         const contentWidth = pageWidth - (margin * 2);
 
         conv.messages.forEach((msg, index) => {
@@ -745,7 +745,7 @@ Quando fizer sentido, mencione que o aluno pode agendar uma aula grátis no Stud
         const handleViewportChange = () => {
             if (!win.classList.contains('active')) return;
             const vp = window.visualViewport;
-            win.style.top    = vp.offsetTop + 'px';
+            win.style.top = vp.offsetTop + 'px';
             win.style.height = vp.height + 'px';
             setTimeout(scrollToBottom, 50);
         };

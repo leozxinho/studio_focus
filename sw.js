@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studio-focus-v5';
+const CACHE_NAME = 'studio-focus-v6';
 const STATIC_ASSETS = [
   './manifest.json',
   './icon-192.png',
@@ -10,8 +10,6 @@ const STATIC_ASSETS = [
 const _SW_ALARMS_URL  = '/__sw_alarms__';
 const _SW_FIRED_URL   = '/__sw_fired__';
 
-let _swAlarmTimeouts = [];
-
 // ── Notificação ──────────────────────────────────────────────────────────────
 function showAlarmNotification(title, body, tag) {
   return self.registration.showNotification(title, {
@@ -20,7 +18,8 @@ function showAlarmNotification(title, body, tag) {
     badge:    './icon-192.png',
     tag,
     renotify: true,
-    vibrate:  [200, 100, 200]
+    requireInteraction: true,   // Não auto-dismiss: fica visível até o usuário interagir
+    vibrate:  [200, 100, 200, 100, 200]
   });
 }
 
@@ -87,28 +86,10 @@ async function checkAndFireAlarms(alarms) {
   }
 }
 
-// ── Agenda alarmes via setTimeout + persiste para sobreviver a reinicios ─────
-function scheduleAlarmsInSW(alarms) {
-  _swAlarmTimeouts.forEach(t => clearTimeout(t));
-  _swAlarmTimeouts = [];
-
-  const now = Date.now();
-
-  alarms.forEach((alarm) => {
-    const [h, m] = alarm.time.split(':').map(Number);
-    const target = new Date();
-    target.setHours(h, m, 0, 0);
-    // Se o horário já passou hoje, agenda para amanhã
-    if (target.getTime() <= now) target.setDate(target.getDate() + 1);
-
-    const delay = target.getTime() - now;
-    const t = setTimeout(() => {
-      showAlarmNotification(alarm.title, alarm.body, alarm.tag);
-    }, delay);
-    _swAlarmTimeouts.push(t);
-  });
-
-  // Persiste para que o próximo activate possa recarregar
+// ── Recebe alarmes da página e persiste (sem setTimeout) ─────────────────────
+// NOTA: setTimeout de horas NÃO funciona em SW — o SO mata o SW após segundos
+// de inatividade. A persistência serve apenas para o periodic sync e push.
+function receiveAlarms(alarms) {
   persistAlarms(alarms);
 }
 
@@ -120,7 +101,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// ── Activate: limpa caches velhos e RESTAURA alarmes persistidos ─────────────
+// ── Activate: limpa caches velhos ────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -131,10 +112,6 @@ self.addEventListener('activate', (event) => {
         )
       )
       .then(() => self.clients.claim())
-      .then(() => loadPersistedAlarms())
-      .then((alarms) => {
-        if (alarms && alarms.length) scheduleAlarmsInSW(alarms);
-      })
   );
 });
 
@@ -186,13 +163,16 @@ self.addEventListener('message', (event) => {
   }
 
   if (event.data.type === 'SCHEDULE_ALARMS') {
-    scheduleAlarmsInSW(event.data.alarms || []);
+    // Persiste os alarmes para uso do periodic sync, mas NÃO usa setTimeout
+    receiveAlarms(event.data.alarms || []);
   }
 });
 
-// ── Push do servidor (Web Push API) ─────────────────────────────────────────
+// ── Push do servidor (Web Push API) — PRINCIPAL MECANISMO ────────────────────
+// Este é o método confiável: o servidor Vercel envia push via web-push,
+// o SO acorda o SW mesmo com app fechado e celular bloqueado.
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push recebido:', event.data ? event.data.text() : 'sem dados');
+  console.log('[SW] 🔔 Push recebido:', event.data ? event.data.text() : 'sem dados');
   let data = { title: 'Studio Focus', body: 'Lembrete de suplemento!', tag: 'alarm', icon: './icon-192.png' };
   try { data = { ...data, ...event.data.json() }; } catch(e) {}
 
@@ -203,12 +183,17 @@ self.addEventListener('push', (event) => {
       badge:    './icon-192.png',
       tag:      data.tag || 'alarm',
       renotify: true,
-      vibrate:  [200, 100, 200],
+      requireInteraction: true,   // Permanece visível até o usuário tocar
+      vibrate:  [200, 100, 200, 100, 200],
+      actions: [
+        { action: 'open', title: '📱 Abrir App' },
+        { action: 'dismiss', title: '✓ OK' }
+      ]
     })
   );
 });
 
-// ── Periodic Background Sync (Chrome/Android) ────────────────────────────────
+// ── Periodic Background Sync (Chrome/Android — complementar) ─────────────────
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'check-alarms') {
     event.waitUntil(
@@ -220,6 +205,10 @@ self.addEventListener('periodicsync', (event) => {
 // ── Notificação clicada: abre o app ──────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+
+  // Se o usuário clicou em "dismiss"/"OK", apenas fecha
+  if (event.action === 'dismiss') return;
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clients) => {

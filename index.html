@@ -8,6 +8,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "215ca90b-5f40-4721-b192-975001757f51",
+    });
+    // Torna o objeto OneSignal global para as outras funções
+    window.OneSignal = OneSignal;
+  });
+</script>
 <title>Studio Focus</title>
 <link rel="icon" href="./icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -1944,8 +1955,9 @@ footer{
     <div class="alarm-status-dot off" id="alarm-status-dot"></div>
     <span id="alarm-status-txt">Nenhum alarme ativo.</span>
    </div>
+   <div class="alarm-push-status" id="alarm-push-status" style="display:none"></div>
    <p style="font-size:10px;color:var(--mt);text-align:center;line-height:1.6;padding:0 8px 4px;font-style:italic">
-    Os alarmes funcionam com o app aberto ou em segundo plano no Android.
+    🔔 Os alarmes funcionam mesmo com o app fechado e celular bloqueado via notificação push.
    </p>
   </div>
  </div>
@@ -4167,15 +4179,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     }).catch(function() {});
   }
 
-  // ── Web Push: inscreve no servidor e sincroniza alarmes ─────────────────
-  function urlBase64ToUint8Array(base64String) {
-    var padding = '='.repeat((4 - base64String.length % 4) % 4);
-    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    var raw = window.atob(base64);
-    var out = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
-    return out;
-  }
+
 
   function buildAlarmList() {
     var d = loadAlarms(); var alarms = [];
@@ -4189,34 +4193,84 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
     return alarms;
   }
 
+  function updatePushStatus(state, msg) {
+    var el = document.getElementById('alarm-push-status');
+    if (!el) return;
+    var icons = { syncing: '🔄', ok: '☁️ ✅', error: '⚠️', off: '📴' };
+    var colors = {
+      syncing: 'rgba(96,165,250,.15)',
+      ok:      'rgba(74,222,128,.12)',
+      error:   'rgba(239,68,68,.12)',
+      off:     'rgba(138,138,158,.1)'
+    };
+    var borders = {
+      syncing: 'rgba(96,165,250,.3)',
+      ok:      'rgba(74,222,128,.3)',
+      error:   'rgba(239,68,68,.3)',
+      off:     'rgba(138,138,158,.2)'
+    };
+    el.style.display = 'flex';
+    el.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;font-size:11px;color:var(--mt);line-height:1.4;' +
+      'background:' + (colors[state]||colors.off) + ';border:1px solid ' + (borders[state]||borders.off);
+    el.innerHTML = '<span style="font-size:14px;flex-shrink:0">' + (icons[state]||'') + '</span><span>' + msg + '</span>';
+  }
+
+  var _pushSyncRetries = 0;
   async function syncPushSubscription() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    if (Notification.permission !== 'granted') return;
+    if (!window.OneSignal) {
+      updatePushStatus('off', 'OneSignal não carregado.');
+      return;
+    }
+
+    if (Notification.permission !== 'granted') {
+      updatePushStatus('off', 'Notificações não permitidas. Ative para receber alarmes.');
+      return;
+    }
+
+    var alarms = buildAlarmList();
+    if (!alarms.length) {
+      updatePushStatus('off', 'Nenhum alarme ativo.');
+      // Remove tags antigas se não houver alarmes
+      OneSignal.push(function() {
+        var currentTags = OneSignal.User.getTags();
+        var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_'));
+        if (toRemove.length) OneSignal.User.removeTags(toRemove);
+      });
+      return;
+    }
+
+    updatePushStatus('syncing', 'Sincronizando com OneSignal...');
+
     try {
-      var vapidRes = await fetch('/api/push-vapid');
-      if (!vapidRes.ok) return;
-      var { publicKey } = await vapidRes.json();
-      var reg = await navigator.serviceWorker.ready;
-      var sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      OneSignal.push(function() {
+        // Converte horários em tags para o OneSignal (ex: alarm_0800: "1")
+        var tags = {};
+        alarms.forEach(function(a) {
+          var tagKey = 'alarm_' + a.time.replace(':', '');
+          tags[tagKey] = "1";
+        });
+
+        // Limpa e define as novas tags usando a API v16 (OneSignal.User)
+        var currentTags = OneSignal.User.getTags();
+        var toRemove = Object.keys(currentTags).filter(t => t.startsWith('alarm_') && !tags[t]);
+        if (toRemove.length) OneSignal.User.removeTags(toRemove);
+        
+        OneSignal.User.addTags(tags);
+        updatePushStatus('ok', alarms.length + ' alarme(s) sincronizado(s) via OneSignal!');
       });
-      var alarms = buildAlarmList();
-      await fetch('/api/push-subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub.toJSON(), alarms: alarms })
-      });
-    } catch(e) { console.warn('Web Push sync:', e); }
+    } catch(e) {
+      console.warn('[Alarm] OneSignal sync erro:', e);
+      updatePushStatus('error', 'Erro ao sincronizar com OneSignal.');
+    }
   }
 
   // Sincroniza ao salvar, adicionar ou remover horários
   var _origSave          = window.saveAlarms;
   var _origAdd           = window.addAlarmTime;
   var _origRemove        = window.removeAlarmTime;
-  window.saveAlarms      = function()      { _origSave();          syncAlarmsToSW(); syncPushSubscription(); };
-  window.addAlarmTime    = function(s)     { _origAdd(s);          syncAlarmsToSW(); syncPushSubscription(); };
-  window.removeAlarmTime = function(s, i)  { _origRemove(s, i);    syncAlarmsToSW(); syncPushSubscription(); };
+  window.saveAlarms      = function()      { _origSave();          syncAlarmsToSW(); _pushSyncRetries=0; syncPushSubscription(); };
+  window.addAlarmTime    = function(s)     { _origAdd(s);          syncAlarmsToSW(); _pushSyncRetries=0; syncPushSubscription(); };
+  window.removeAlarmTime = function(s, i)  { _origRemove(s, i);    syncAlarmsToSW(); _pushSyncRetries=0; syncPushSubscription(); };
 
   // Sincroniza assim que o SW estiver pronto no carregamento da página
   if ('serviceWorker' in navigator) {
@@ -4228,7 +4282,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.
 
   // Re-verifica ao app voltar ao primeiro plano (ex: usuário re-abre o PWA)
   document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) { checkAlarms(); syncAlarmsToSW(); }
+    if (!document.hidden) { checkAlarms(); syncAlarmsToSW(); _pushSyncRetries=0; syncPushSubscription(); }
   });
 
   setInterval(checkAlarms, 10000);
