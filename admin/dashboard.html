@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Studio Focus</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .nav-btn.active {
+            background: var(--pu);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+        .stat-card {
+            border: 1px solid var(--bd);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            border-color: var(--pu);
+            background: rgba(0, 102, 255, 0.05);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen bg-bg text-tx overflow-hidden">
+
+    <!-- Mobile Header -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-s1 border-b border-bd flex items-center justify-between px-6 z-50">
+        <h1 class="font-bebas text-2xl tracking-widest">STUDIO <span class="text-pu">FOCUS</span></h1>
+        <button onclick="toggleSidebar()" class="p-2 text-mt">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-s1 border-r border-bd z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="p-8">
+            <h1 class="font-bebas text-3xl tracking-widest">STUDIO <span class="text-pu">FOCUS</span></h1>
+            <p class="text-mt text-[10px] uppercase tracking-widest mt-1">Admin Dashboard</p>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <button data-section="visao-geral" class="nav-btn active w-full flex items-center gap-4 px-4 py-3 rounded-xl text-mt hover:text-white hover:bg-s2 transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="font-medium">Visão Geral</span>
+            </button>
+            <button data-section="alunos" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl text-mt hover:text-white hover:bg-s2 transition-all">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="font-medium">Alunos</span>
+            </button>
+            <button data-section="planos" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl text-mt hover:text-white hover:bg-s2 transition-all">
+                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                <span class="font-medium">Planos</span>
+            </button>
+            <button data-section="agendamentos" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl text-mt hover:text-white hover:bg-s2 transition-all">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="font-medium">Agendamentos</span>
+            </button>
+            <button data-section="configuracoes" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl text-mt hover:text-white hover:bg-s2 transition-all">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Configurações</span>
+            </button>
+        </nav>
+
+        <div class="p-4 mt-auto border-t border-bd">
+            <button onclick="logout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span class="font-medium">Sair da Conta</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="dashboard-content" class="flex-1 lg:ml-72 p-6 lg:p-10 mt-16 lg:mt-0 overflow-y-auto">
+        
+        <!-- Visão Geral -->
+        <section id="visao-geral" class="dashboard-section animate-fade">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Bem-vindo, Admin</h2>
+                    <p class="text-mt">Aqui está o que está acontecendo hoje no Studio Focus.</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="bg-s2 px-4 py-2 rounded-xl border border-bd flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-sm font-medium">Status: Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+                <div class="stat-card glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-pu/10 rounded-xl flex items-center justify-center text-pu">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <span class="text-green-500 text-xs font-bold font-mono">+12%</span>
+                    </div>
+                    <h3 class="text-mt text-xs uppercase tracking-widest font-bold">Total Alunos</h3>
+                    <p class="text-4xl font-bebas tracking-wider mt-1">1,248</p>
+                </div>
+                <div class="stat-card glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-pu/10 rounded-xl flex items-center justify-center text-pu">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <span class="text-green-500 text-xs font-bold font-mono">+5%</span>
+                    </div>
+                    <h3 class="text-mt text-xs uppercase tracking-widest font-bold">Receita Mensal</h3>
+                    <p class="text-4xl font-bebas tracking-wider mt-1">R$ 42.500</p>
+                </div>
+                <div class="stat-card glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-pu/10 rounded-xl flex items-center justify-center text-pu">
+                            <i data-lucide="calendar-check"></i>
+                        </div>
+                        <span class="text-mt text-xs font-bold font-mono">Hoje</span>
+                    </div>
+                    <h3 class="text-mt text-xs uppercase tracking-widest font-bold">Agendamentos</h3>
+                    <p class="text-4xl font-bebas tracking-wider mt-1">86</p>
+                </div>
+                <div class="stat-card glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-pu/10 rounded-xl flex items-center justify-center text-pu">
+                            <i data-lucide="activity"></i>
+                        </div>
+                        <span class="text-pu text-xs font-bold font-mono">85%</span>
+                    </div>
+                    <h3 class="text-mt text-xs uppercase tracking-widest font-bold">Capacidade</h3>
+                    <p class="text-4xl font-bebas tracking-wider mt-1">Lotado</p>
+                </div>
+            </div>
+
+            <!-- Recent Activity / Placeholder -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="xl:col-span-2 glass p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-6">Alunos Recentes</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-mt text-xs uppercase tracking-widest border-b border-bd">
+                                    <th class="pb-4 font-bold">Aluno</th>
+                                    <th class="pb-4 font-bold">Plano</th>
+                                    <th class="pb-4 font-bold">Status</th>
+                                    <th class="pb-4 font-bold">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-bd/50">
+                                    <td class="py-4 flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-pu/20 rounded-full flex items-center justify-center text-xs text-pu font-bold">JD</div>
+                                        <span>João Silva</span>
+                                    </td>
+                                    <td class="py-4">Black Gym</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-500 px-2 py-1 rounded text-[10px] font-bold">ATIVO</span></td>
+                                    <td class="py-4 text-mt">14/05/2026</td>
+                                </tr>
+                                <tr class="border-b border-bd/50">
+                                    <td class="py-4 flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-pu/20 rounded-full flex items-center justify-center text-xs text-pu font-bold">MA</div>
+                                        <span>Maria Oliveira</span>
+                                    </td>
+                                    <td class="py-4">Focus Club</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-500 px-2 py-1 rounded text-[10px] font-bold">ATIVO</span></td>
+                                    <td class="py-4 text-mt">13/05/2026</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-pu/20 rounded-full flex items-center justify-center text-xs text-pu font-bold">PR</div>
+                                        <span>Pedro Rocha</span>
+                                    </td>
+                                    <td class="py-4">Personal Fit</td>
+                                    <td class="py-4"><span class="bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded text-[10px] font-bold">PENDENTE</span></td>
+                                    <td class="py-4 text-mt">12/05/2026</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-6">Próximos Treinos</h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="text-center">
+                                <span class="block text-pu font-bold text-lg">08:00</span>
+                                <span class="text-[10px] text-mt uppercase">AM</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm">HIIT Avançado</h4>
+                                <p class="text-xs text-mt">Prof. Ricardo | 12 Alunos</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="text-center">
+                                <span class="block text-pu font-bold text-lg">10:30</span>
+                                <span class="text-[10px] text-mt uppercase">AM</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm">Yoga Relax</h4>
+                                <p class="text-xs text-mt">Prof. Carla | 8 Alunos</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="text-center">
+                                <span class="block text-pu font-bold text-lg">17:00</span>
+                                <span class="text-[10px] text-mt uppercase">PM</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm">Cross Training</h4>
+                                <p class="text-xs text-mt">Prof. Bruno | 20 Alunos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-8 py-3 bg-s2 border border-bd rounded-xl text-sm font-bold hover:bg-s3 transition-all">
+                        VER TODOS
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alunos (Placeholder) -->
+        <section id="alunos" class="dashboard-section hidden animate-fade">
+            <h2 class="text-3xl font-bold text-white mb-6">Gestão de Alunos</h2>
+            <div class="glass p-12 rounded-2xl text-center">
+                <i data-lucide="construction" class="w-16 h-16 text-pu mx-auto mb-6"></i>
+                <h3 class="text-xl font-bold">Módulo em Desenvolvimento</h3>
+                <p class="text-mt mt-2">Esta funcionalidade estará disponível em breve no painel administrativo.</p>
+            </div>
+        </section>
+
+        <!-- Planos (Placeholder) -->
+        <section id="planos" class="dashboard-section hidden animate-fade">
+            <h2 class="text-3xl font-bold text-white mb-6">Gestão de Planos</h2>
+            <div class="glass p-12 rounded-2xl text-center">
+                <i data-lucide="credit-card" class="w-16 h-16 text-pu mx-auto mb-6"></i>
+                <h3 class="text-xl font-bold">Módulo de Planos</h3>
+                <p class="text-mt mt-2">Gerencie preços e benefícios dos planos oferecidos.</p>
+            </div>
+        </section>
+
+        <!-- Agendamentos (Placeholder) -->
+        <section id="agendamentos" class="dashboard-section hidden animate-fade">
+            <h2 class="text-3xl font-bold text-white mb-6">Calendário de Agendamentos</h2>
+            <div class="glass p-12 rounded-2xl text-center">
+                <i data-lucide="calendar" class="w-16 h-16 text-pu mx-auto mb-6"></i>
+                <h3 class="text-xl font-bold">Agenda Semanal</h3>
+                <p class="text-mt mt-2">Visualize e edite os horários das aulas e treinos.</p>
+            </div>
+        </section>
+
+        <!-- Configurações (Placeholder) -->
+        <section id="configuracoes" class="dashboard-section hidden animate-fade">
+            <h2 class="text-3xl font-bold text-white mb-6">Configurações do Sistema</h2>
+            <div class="glass p-8 rounded-2xl max-w-2xl">
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="font-bold mb-4">Perfil do Admin</h4>
+                        <div class="flex items-center gap-6">
+                            <div class="w-20 h-20 bg-s3 rounded-full border-2 border-pu flex items-center justify-center text-3xl font-bebas tracking-widest">SF</div>
+                            <button class="bg-pu px-4 py-2 rounded-lg text-sm font-bold">Mudar Foto</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs text-mt uppercase font-bold">Nome de Exibição</label>
+                            <input type="text" value="Administrador Focus" class="w-full bg-s1 border border-bd rounded-lg px-4 py-2 text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs text-mt uppercase font-bold">E-mail de Contato</label>
+                            <input type="email" value="admin@studiofocus.app.br" class="w-full bg-s1 border border-bd rounded-lg px-4 py-2 text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Segurança</h4>
+                        <button class="text-pu text-sm font-bold hover:underline">Redefinir Senha de Acesso</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="admin.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

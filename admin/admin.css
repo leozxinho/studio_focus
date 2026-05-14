@@ -1,0 +1,71 @@
+:root {
+    --pu: #0066FF;
+    --pu2: #3d9aff;
+    --pu-glow: rgba(0, 102, 255, 0.4);
+    --bg: #020d1a;
+    --s1: #061220;
+    --s2: #0a1a2e;
+    --s3: #0d2040;
+    --tx: #f0f0f8;
+    --mt: #8a8a9e;
+    --bd: rgba(255, 255, 255, 0.07);
+    --bd2: rgba(255, 255, 255, 0.14);
+    --neon-blue: #00f2ff;
+    --neon-green: #39ff14;
+    --ff: 'Bebas Neue', sans-serif;
+    --fb: 'DM Sans', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--tx);
+    font-family: var(--fb);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--s3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--pu);
+}
+
+/* Utility Classes */
+.font-bebas { font-family: var(--ff); }
+.text-pu { color: var(--pu2); }
+.bg-s1 { background-color: var(--s1); }
+.bg-s2 { background-color: var(--s2); }
+
+/* Glassmorphism */
+.glass {
+    background: rgba(10, 26, 46, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--bd);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade {
+    animation: fadeIn 0.4s ease-out forwards;
+}
